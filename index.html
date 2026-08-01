@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>People Ledger -- Blockchain-Verified Credential Passport</title>
+  <meta property="og:title" content="People Ledger -- AI-Powered Blockchain Credential Passport">
+  <meta property="og:description" content="Employers sign. You own. AI matches. Zero-knowledge proves. No reference checks. No down-leveling.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sanoojcools.github.io/people-ledger/">
+  <meta name="twitter:card" content="summary_large_image">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -56,6 +61,25 @@
     }
     .logo-text { font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
     .logo-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .header-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .view-counter {
+      font-size: 12px; color: var(--text-muted); font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .view-counter-dot {
+      width: 6px; height: 6px; background: var(--success); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .share-btn {
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 6px 14px; border-radius: 8px;
+      font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .share-btn:hover { border-color: var(--accent); color: var(--text); }
     .wallet-btn {
       background: var(--bg-card); border: 1px solid var(--border);
       color: var(--text); padding: 8px 18px; border-radius: 10px;
@@ -234,16 +258,29 @@
     .extracted-field-value { font-size: 14px; font-weight: 600; color: var(--text); }
     .extracted-field-value.confidence-high { color: var(--success); }
     .extracted-field-value.confidence-med { color: var(--warning); }
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 20px;
+      font-size: 13px; font-weight: 600; color: var(--success);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.3s ease; z-index: 1000;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
     @media (max-width: 768px) {
       .grid-2, .credential-body, .result-grid { grid-template-columns: 1fr; }
       .hero h1 { font-size: 28px; }
       .tabs { overflow-x: auto; width: 100%; }
       .offer-details { flex-direction: column; gap: 16px; }
+      .header-right { display: none; }
     }
   </style>
 <base target="_blank">
 </head>
 <body>
+
+<div class="toast" id="toast">Link copied to clipboard!</div>
 
 <header>
   <div class="container">
@@ -255,7 +292,14 @@
           <div class="logo-sub">Blockchain-Verified Credential Passport</div>
         </div>
       </div>
-      <button class="wallet-btn" id="connectBtn">Connect Wallet</button>
+      <div class="header-right">
+        <div class="view-counter">
+          <div class="view-counter-dot"></div>
+          <span id="viewCount">1,247 people viewing Sarahs story</span>
+        </div>
+        <button class="share-btn" id="shareBtn">Share Demo</button>
+        <button class="wallet-btn" id="connectBtn">Connect Wallet</button>
+      </div>
     </div>
   </div>
 </header>
@@ -421,8 +465,8 @@ We value candidates who can demonstrate ownership of high-scale systems and have
       <div class="card-desc">Sarahs manager forwards her review email. The AI agent reads unstructured text, extracts structured fields, and auto-fills the mint form. No manual data entry.</div>
       <div class="form-group">
         <label>Paste Performance Review Email or Text</label>
-        <textarea id="extractInput" placeholder="Paste a raw performance review, email, or HR document here...">From: David Park <david.park@aws.amazon.com>
-To: HR-Portal <hr-portal@aws.amazon.com>
+        <textarea id="extractInput" placeholder="Paste a raw performance review, email, or HR document here...">From: David Park &lt;david.park@aws.amazon.com&gt;
+To: HR-Portal &lt;hr-portal@aws.amazon.com&gt;
 Subject: H1 2024 Performance Review -- Sarah Chen
 Date: June 28, 2024
 
@@ -431,7 +475,7 @@ Date: June 28, 2024
 Employee: Sarah Chen
 Employee ID: SC-78234
 Manager: David Park, Sr. Engineering Manager
-Department: AWS Billing & Payments
+Department: AWS Billing and Payments
 
 PERFORMANCE SUMMARY -- H1 2024
 
@@ -468,7 +512,7 @@ Sr. Engineering Manager, AWS Billing</textarea>
           <span class="badge badge-success">Confidence: 94%</span>
         </div>
         <div id="extractedFields"></div>
-        <button class="btn btn-success" id="populateBtn" style="margin-top:16px;"><span>Populate Issue Form & Mint</span></button>
+        <button class="btn btn-success" id="populateBtn" style="margin-top:16px;"><span>Populate Issue Form and Mint</span></button>
         <div id="populateResult"></div>
       </div>
     </div>
@@ -477,7 +521,6 @@ Sr. Engineering Manager, AWS Billing</textarea>
 </div>
 
 <script>
-// STATE
 var walletConnected = false;
 var walletAddress = '';
 var credentials = [];
@@ -511,12 +554,23 @@ var sarahCredentials = [
   }
 ];
 
-// INIT
 document.addEventListener('DOMContentLoaded', function() {
   credentials = sarahCredentials.slice();
   renderWallet();
   bindEvents();
+  animateViewCount();
 });
+
+function animateViewCount() {
+  var el = document.getElementById('viewCount');
+  var count = 1247;
+  var target = 1247 + Math.floor(Math.random() * 50);
+  var interval = setInterval(function() {
+    count++;
+    el.textContent = count.toLocaleString() + ' people viewing Sarahs story';
+    if (count >= target) clearInterval(interval);
+  }, 3000);
+}
 
 function bindEvents() {
   document.getElementById('connectBtn').addEventListener('click', toggleWallet);
@@ -527,6 +581,7 @@ function bindEvents() {
   document.getElementById('genAllBtn').addEventListener('click', generateAllProofs);
   document.getElementById('extractBtn').addEventListener('click', runExtraction);
   document.getElementById('populateBtn').addEventListener('click', populateAndMint);
+  document.getElementById('shareBtn').addEventListener('click', shareDemo);
 
   document.querySelectorAll('.tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
@@ -537,6 +592,24 @@ function bindEvents() {
       document.getElementById(tabId).classList.add('active');
     });
   });
+}
+
+function shareDemo() {
+  var url = 'https://sanoojcools.github.io/people-ledger/';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      showToast('Link copied to clipboard!');
+    });
+  } else {
+    showToast('URL: ' + url);
+  }
+}
+
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 2500);
 }
 
 function toggleWallet() {
@@ -732,7 +805,7 @@ function renderMatchTable() {
     { req: 'Tenure', extracted: '5+ years', credential: '4.5 years (Jan 2020 -> Present)', status: 'ok', proof: 'Public' },
     { req: 'Performance Rating', extracted: 'Exceeds Expectations', credential: 'Encrypted (ZK-Locked)', status: 'warn', proof: 'ZK Range Proof' },
     { req: 'Distributed Systems', extracted: 'Required', credential: 'OK AWS Billing Pipeline ($40M/day)', status: 'ok', proof: 'Public' },
-    { req: 'Python & AWS', extracted: 'Required', credential: 'OK Certified AWS Solutions Architect', status: 'ok', proof: 'Public' },
+    { req: 'Python and AWS', extracted: 'Required', credential: 'OK Certified AWS Solutions Architect', status: 'ok', proof: 'Public' },
     { req: 'Billing / Payments', extracted: 'Required', credential: 'OK Built AWS Billing Pipeline', status: 'ok', proof: 'Public' }
   ];
   var tbody = document.getElementById('matchTableBody');
@@ -754,7 +827,7 @@ function generateAllProofs() {
   setTimeout(function() {
     btn.disabled = false;
     btn.innerHTML = '<span>Generate All Proofs</span>';
-    resultDiv.innerHTML = '<div class="result-box fade-in" style="margin-top:20px;"><div class="result-title">All Proofs Generated & Verified</div><div class="result-grid">' +
+    resultDiv.innerHTML = '<div class="result-box fade-in" style="margin-top:20px;"><div class="result-title">All Proofs Generated and Verified</div><div class="result-grid">' +
       '<div class="result-item"><div class="result-item-label">Proofs Generated</div><div class="result-item-value">6 / 6</div></div>' +
       '<div class="result-item"><div class="result-item-label">ZK Proofs</div><div class="result-item-value">1 (Performance)</div></div>' +
       '<div class="result-item"><div class="result-item-label">Public Verifications</div><div class="result-item-value">5</div></div>' +
@@ -769,7 +842,6 @@ function generateAllProofs() {
   }, 2000);
 }
 
-// AI EXTRACTION
 function runExtraction() {
   var btn = document.getElementById('extractBtn');
   var logDiv = document.getElementById('extractLog');
@@ -861,7 +933,7 @@ function populateAndMint() {
     document.getElementById('issueSkills').value = extractedData.skills.value;
 
     btn.disabled = false;
-    btn.innerHTML = '<span>Populate Issue Form & Mint</span>';
+    btn.innerHTML = '<span>Populate Issue Form and Mint</span>';
 
     document.getElementById('populateResult').innerHTML =
       '<div class="result-box fade-in" style="margin-top:16px;">' +
@@ -869,7 +941,6 @@ function populateAndMint() {
         '<p style="font-size:13px; color:var(--text-muted);">Switch to the <strong>Issue</strong> tab to review and mint the credential. All fields have been pre-populated from the performance review.</p>' +
       '</div>';
 
-    // Auto-switch to Issue tab after 1.5s
     setTimeout(function() {
       document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
       document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
