@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>People Ledger — Blockchain-Verified Credential Passport</title>
+  <title>People Ledger -- Blockchain-Verified Credential Passport</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -90,6 +90,7 @@
       display: flex; gap: 4px; padding: 4px;
       background: var(--bg-elevated); border: 1px solid var(--border);
       border-radius: 14px; width: fit-content; margin: 0 auto 32px;
+      flex-wrap: wrap; justify-content: center;
     }
     .tab {
       padding: 10px 20px; border-radius: 10px; border: none;
@@ -245,31 +246,30 @@
           <div class="logo-sub">Blockchain-Verified Credential Passport</div>
         </div>
       </div>
-      <button class="wallet-btn" id="connectBtn" onclick="toggleWallet()">Connect Wallet</button>
+      <button class="wallet-btn" id="connectBtn">Connect Wallet</button>
     </div>
   </div>
 </header>
 
 <div class="container">
   <div class="hero">
-    <div class="story-badge">🎯 Sarah's Story</div>
+    <div class="story-badge">Sarahs Story</div>
     <h1>Your Work History, Cryptographically Yours</h1>
     <p>Employers sign. You own. AI matches. Zero-knowledge proves. No reference checks. No down-leveling. No PDFs.</p>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('issue')">📋 Issue</button>
-    <button class="tab" onclick="switchTab('wallet')">🛂 Wallet</button>
-    <button class="tab" onclick="switchTab('verify')">🔍 Verify</button>
-    <button class="tab" onclick="switchTab('zk')">🔐 ZK Proof</button>
-    <button class="tab" onclick="switchTab('aimatch')">🤖 AI Match</button>
+    <button class="tab active" data-tab="issue">Issue</button>
+    <button class="tab" data-tab="wallet">Wallet</button>
+    <button class="tab" data-tab="verify">Verify</button>
+    <button class="tab" data-tab="zk">ZK Proof</button>
+    <button class="tab" data-tab="aimatch">AI Match</button>
   </div>
 
-  <!-- ISSUE TAB -->
   <div id="issue" class="tab-content active">
     <div class="card">
-      <div class="card-title">📋 Issue Credential</div>
-      <div class="card-desc">AWS HR mints Sarah's employment credential. Cryptographically signed. She owns it forever.</div>
+      <div class="card-title">Issue Credential</div>
+      <div class="card-desc">AWS HR mints Sarahs employment credential. Cryptographically signed. She owns it forever.</div>
       <div class="grid-2">
         <div class="form-group">
           <label>Employee Wallet Address</label>
@@ -321,76 +321,72 @@
         <label>Skills (comma separated)</label>
         <input type="text" id="issueSkills" value="Distributed Systems, Billing, Python, AWS" />
       </div>
-      <button class="btn" onclick="mintCredential()" id="mintBtn">Mint Credential</button>
+      <button class="btn" id="mintBtn">Mint Credential</button>
       <div id="mintResult"></div>
     </div>
   </div>
 
-  <!-- WALLET TAB -->
   <div id="wallet" class="tab-content">
     <div class="card">
-      <div class="card-title">🛂 Sarah's Credential Passport</div>
+      <div class="card-title">Sarahs Credential Passport</div>
       <div class="card-desc">She sees her ratings. The world sees locked boxes. She controls every attribute.</div>
       <div id="walletCredentials"></div>
     </div>
   </div>
 
-  <!-- VERIFY TAB -->
   <div id="verify" class="tab-content">
     <div class="card">
-      <div class="card-title">🔍 Verify Credential</div>
-      <div class="card-desc">Stripe checks Sarah's credential instantly. No emails. No phone calls. Just cryptographic truth.</div>
+      <div class="card-title">Verify Credential</div>
+      <div class="card-desc">Stripe checks Sarahs credential instantly. No emails. No phone calls. Just cryptographic truth.</div>
       <div class="form-group">
         <label>Credential Token ID</label>
         <input type="text" id="verifyTokenId" value="0" placeholder="Enter token ID (e.g. 0)" />
       </div>
-      <button class="btn" onclick="verifyCredential()">Verify on Chain</button>
+      <button class="btn" id="verifyBtn">Verify on Chain</button>
       <div id="verifyResult"></div>
     </div>
   </div>
 
-  <!-- ZK PROOF TAB -->
   <div id="zk" class="tab-content">
     <div class="card">
-      <div class="card-title">🔐 Zero-Knowledge Proof</div>
+      <div class="card-title">Zero-Knowledge Proof</div>
       <div class="card-desc">Sarah proves she meets the threshold. Stripe sees the proof. Never sees the number.</div>
       <div class="form-group">
         <label>Select Attribute to Prove</label>
         <select id="zkAttribute">
-          <option value="performance">Performance: Meets or exceeds "Exceeds Expectations"</option>
+          <option value="performance">Performance: Meets or exceeds Exceeds Expectations</option>
           <option value="tenure">Tenure: 4+ years at current level</option>
           <option value="level">Level: L6 or higher</option>
           <option value="skill">Skills: Distributed Systems experience</option>
         </select>
       </div>
-      <button class="btn" onclick="generateZKProof()">Generate ZK Proof</button>
+      <button class="btn" id="zkBtn">Generate ZK Proof</button>
       <div id="zkResult"></div>
     </div>
   </div>
 
-  <!-- AI MATCH TAB -->
   <div id="aimatch" class="tab-content">
     <div class="card">
-      <div class="card-title">🤖 AI Agent — Job Matching</div>
-      <div class="card-desc">Stripe posts a job. The AI agent reads it, extracts requirements, matches Sarah's encrypted credentials, and auto-generates proof requests.</div>
+      <div class="card-title">AI Agent -- Job Matching</div>
+      <div class="card-desc">Stripe posts a job. The AI agent reads it, extracts requirements, matches Sarahs encrypted credentials, and auto-generates proof requests.</div>
 
       <div class="form-group">
         <label>Job Description</label>
         <textarea id="jdInput" placeholder="Paste a job description here...">Stripe is hiring a Staff Software Engineer (L7) for our new Payments Infrastructure team.
 
 Requirements:
-• 5+ years experience in distributed systems
-• Track record of "Exceeds Expectations" performance
-• L6+ equivalent or higher
-• Experience with billing, payments, or financial systems
-• Strong Python and AWS background
-• Built systems processing $10M+ daily volume
+- 5+ years experience in distributed systems
+- Track record of Exceeds Expectations performance
+- L6+ equivalent or higher
+- Experience with billing, payments, or financial systems
+- Strong Python and AWS background
+- Built systems processing $10M+ daily volume
 
 We value candidates who can demonstrate ownership of high-scale systems and have been rated top-performer in their last two review cycles.</textarea>
       </div>
 
-      <button class="btn" onclick="runAIMatch()" id="aiRunBtn">
-        <span>▶</span> Run AI Agent
+      <button class="btn" id="aiRunBtn">
+        <span>Run AI Agent</span>
       </button>
 
       <div id="agentLog" class="agent-log hidden"></div>
@@ -409,7 +405,7 @@ We value candidates who can demonstrate ownership of high-scale systems and have
             <tr>
               <th>Requirement</th>
               <th>Extracted Value</th>
-              <th>Sarah's Credential</th>
+              <th>Sarahs Credential</th>
               <th>Status</th>
               <th>Proof Type</th>
             </tr>
@@ -417,8 +413,8 @@ We value candidates who can demonstrate ownership of high-scale systems and have
           <tbody id="matchTableBody"></tbody>
         </table>
 
-        <button class="btn btn-success" onclick="generateAllProofs()" id="genAllBtn" style="margin-top:16px;">
-          <span>⚡</span> Generate All Proofs
+        <button class="btn btn-success" id="genAllBtn" style="margin-top:16px;">
+          <span>Generate All Proofs</span>
         </button>
 
         <div id="allProofResult"></div>
@@ -429,13 +425,13 @@ We value candidates who can demonstrate ownership of high-scale systems and have
 </div>
 
 <script>
-// ===================== STATE =====================
+// STATE
 let walletConnected = false;
 let walletAddress = '';
 let credentials = [];
 let matchData = [];
 
-// Sarah's pre-loaded credentials
+// Sarahs pre-loaded credentials
 const sarahCredentials = [
   {
     id: 0,
@@ -466,7 +462,7 @@ const sarahCredentials = [
     visibility: 'zk',
     skills: ['Distributed Systems', 'Billing', 'Python', 'AWS', 'Leadership'],
     issuer: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-    issuerName: 'Sarah's Manager, AWS',
+    issuerName: 'Sarahs Manager, AWS',
     reputation: 98,
     status: 'active',
     dataHash: '0x9b2c...f1a4'
@@ -474,7 +470,7 @@ const sarahCredentials = [
   {
     id: 2,
     type: 'skill',
-    title: 'AWS Solutions Architect — Professional',
+    title: 'AWS Solutions Architect -- Professional',
     level: 'Professional',
     company: 'Amazon Web Services',
     startDate: '2022-03-10',
@@ -490,23 +486,35 @@ const sarahCredentials = [
   }
 ];
 
-// ===================== INIT =====================
-document.addEventListener('DOMContentLoaded', () => {
-  credentials = [...sarahCredentials];
+// INIT
+document.addEventListener('DOMContentLoaded', function() {
+  credentials = sarahCredentials.slice();
   renderWallet();
+  bindEvents();
 });
 
-// ===================== TABS =====================
-function switchTab(tabId) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById(tabId).classList.add('active');
+function bindEvents() {
+  document.getElementById('connectBtn').addEventListener('click', toggleWallet);
+  document.getElementById('mintBtn').addEventListener('click', mintCredential);
+  document.getElementById('verifyBtn').addEventListener('click', verifyCredential);
+  document.getElementById('zkBtn').addEventListener('click', generateZKProof);
+  document.getElementById('aiRunBtn').addEventListener('click', runAIMatch);
+  document.getElementById('genAllBtn').addEventListener('click', generateAllProofs);
+
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var tabId = this.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
 }
 
-// ===================== WALLET =====================
+// WALLET
 function toggleWallet() {
-  const btn = document.getElementById('connectBtn');
+  var btn = document.getElementById('connectBtn');
   if (!walletConnected) {
     walletAddress = '0xf39F...2266';
     walletConnected = true;
@@ -520,14 +528,14 @@ function toggleWallet() {
   }
 }
 
-// ===================== MINT =====================
+// MINT
 function mintCredential() {
-  const btn = document.getElementById('mintBtn');
+  var btn = document.getElementById('mintBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="typing-cursor">Minting on-chain</span>';
 
-  setTimeout(() => {
-    const newCred = {
+  setTimeout(function() {
+    var newCred = {
       id: credentials.length,
       type: document.getElementById('issueType').value,
       title: document.getElementById('issueTitle').value,
@@ -537,7 +545,7 @@ function mintCredential() {
       endDate: document.getElementById('issueEnd').value || null,
       rating: document.getElementById('issueRating').value,
       visibility: document.getElementById('issueVisibility').value,
-      skills: document.getElementById('issueSkills').value.split(',').map(s => s.trim()),
+      skills: document.getElementById('issueSkills').value.split(',').map(function(s) { return s.trim(); }),
       issuer: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
       issuerName: 'Amazon Web Services',
       reputation: 100,
@@ -547,166 +555,153 @@ function mintCredential() {
     credentials.push(newCred);
     renderWallet();
 
-    document.getElementById('mintResult').innerHTML = `
-      <div class="result-box fade-in">
-        <div class="result-title">✅ Credential Minted Successfully</div>
-        <div class="result-grid">
-          <div class="result-item"><div class="result-item-label">Token ID</div><div class="result-item-value">#${newCred.id}</div></div>
-          <div class="result-item"><div class="result-item-label">Type</div><div class="result-item-value">${newCred.type}</div></div>
-          <div class="result-item"><div class="result-item-label">Transaction</div><div class="result-item-value" style="font-family:monospace; font-size:11px;">0x${Math.random().toString(16).slice(2, 66)}</div></div>
-          <div class="result-item"><div class="result-item-label">Gas Used</div><div class="result-item-value">42,317</div></div>
-        </div>
-      </div>
-    `;
+    document.getElementById('mintResult').innerHTML =
+      '<div class="result-box fade-in">' +
+        '<div class="result-title">Credential Minted Successfully</div>' +
+        '<div class="result-grid">' +
+          '<div class="result-item"><div class="result-item-label">Token ID</div><div class="result-item-value">#' + newCred.id + '</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Type</div><div class="result-item-value">' + newCred.type + '</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Transaction</div><div class="result-item-value" style="font-family:monospace; font-size:11px;">0x' + Math.random().toString(16).slice(2, 66) + '</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Gas Used</div><div class="result-item-value">42,317</div></div>' +
+        '</div>' +
+      '</div>';
 
     btn.disabled = false;
     btn.innerHTML = 'Mint Credential';
   }, 1200);
 }
 
-// ===================== WALLET RENDER =====================
+// WALLET RENDER
 function renderWallet() {
-  const container = document.getElementById('walletCredentials');
+  var container = document.getElementById('walletCredentials');
   if (!credentials.length) {
     container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:40px;">No credentials yet. Mint one in the Issue tab.</p>';
     return;
   }
 
-  container.innerHTML = credentials.map(c => {
-    const visBadge = c.visibility === 'public' ? '<span class="badge badge-success">Public</span>' :
-                     c.visibility === 'zk' ? '<span class="badge badge-warning">ZK-Locked</span>' :
-                     '<span class="badge badge-danger">Private</span>';
-    const statusBadge = c.status === 'active' ? '<span class="badge badge-success">Active</span>' :
-                          '<span class="badge badge-danger">Revoked</span>';
+  container.innerHTML = credentials.map(function(c) {
+    var visBadge = c.visibility === 'public' ? '<span class="badge badge-success">Public</span>' :
+                   c.visibility === 'zk' ? '<span class="badge badge-warning">ZK-Locked</span>' :
+                   '<span class="badge badge-danger">Private</span>';
+    var statusBadge = c.status === 'active' ? '<span class="badge badge-success">Active</span>' :
+                      '<span class="badge badge-danger">Revoked</span>';
 
-    let ratingDisplay = c.rating;
+    var ratingDisplay = c.rating;
     if (c.visibility === 'zk' || c.visibility === 'private') {
-      ratingDisplay = '<span style="color:var(--text-muted);">🔒 Encrypted</span>';
+      ratingDisplay = '<span style="color:var(--text-muted);">Encrypted</span>';
     }
 
-    return `
-      <div class="credential-card fade-in">
-        <div class="credential-header">
-          <div>
-            <div class="credential-title">${c.title}</div>
-            <div class="credential-meta">${c.company} • ${c.type} credential</div>
-          </div>
-          <div style="display:flex; gap:6px;">${visBadge}${statusBadge}</div>
-        </div>
-        <div class="credential-body">
-          <div class="credential-field"><div class="credential-field-label">Level</div><div class="credential-field-value">${c.level}</div></div>
-          <div class="credential-field"><div class="credential-field-label">Rating</div><div class="credential-field-value">${ratingDisplay}</div></div>
-          <div class="credential-field"><div class="credential-field-label">Period</div><div class="credential-field-value">${c.startDate} → ${c.endDate || 'Present'}</div></div>
-          <div class="credential-field"><div class="credential-field-label">Issuer</div><div class="credential-field-value">${c.issuerName} <span style="color:var(--success);">(${c.reputation}%)</span></div></div>
-          <div class="credential-field" style="grid-column:1/-1;"><div class="credential-field-label">Skills</div><div class="credential-field-value">${c.skills.join(', ')}</div></div>
-          <div class="credential-field" style="grid-column:1/-1;"><div class="credential-field-label">Data Hash (on-chain)</div><div class="credential-field-value" style="font-family:monospace; font-size:11px; color:var(--text-muted);">${c.dataHash}</div></div>
-        </div>
-      </div>
-    `;
+    return '<div class="credential-card fade-in">' +
+      '<div class="credential-header">' +
+        '<div>' +
+          '<div class="credential-title">' + c.title + '</div>' +
+          '<div class="credential-meta">' + c.company + ' &bull; ' + c.type + ' credential</div>' +
+        '</div>' +
+        '<div style="display:flex; gap:6px;">' + visBadge + statusBadge + '</div>' +
+      '</div>' +
+      '<div class="credential-body">' +
+        '<div class="credential-field"><div class="credential-field-label">Level</div><div class="credential-field-value">' + c.level + '</div></div>' +
+        '<div class="credential-field"><div class="credential-field-label">Rating</div><div class="credential-field-value">' + ratingDisplay + '</div></div>' +
+        '<div class="credential-field"><div class="credential-field-label">Period</div><div class="credential-field-value">' + c.startDate + ' &rarr; ' + (c.endDate || 'Present') + '</div></div>' +
+        '<div class="credential-field"><div class="credential-field-label">Issuer</div><div class="credential-field-value">' + c.issuerName + ' <span style="color:var(--success);">(' + c.reputation + '%)</span></div></div>' +
+        '<div class="credential-field" style="grid-column:1/-1;"><div class="credential-field-label">Skills</div><div class="credential-field-value">' + c.skills.join(', ') + '</div></div>' +
+        '<div class="credential-field" style="grid-column:1/-1;"><div class="credential-field-label">Data Hash (on-chain)</div><div class="credential-field-value" style="font-family:monospace; font-size:11px; color:var(--text-muted);">' + c.dataHash + '</div></div>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
-// ===================== VERIFY =====================
+// VERIFY
 function verifyCredential() {
-  const tokenId = document.getElementById('verifyTokenId').value;
-  const cred = credentials.find(c => c.id == tokenId);
-  const resultDiv = document.getElementById('verifyResult');
+  var tokenId = document.getElementById('verifyTokenId').value;
+  var cred = credentials.find(function(c) { return c.id == tokenId; });
+  var resultDiv = document.getElementById('verifyResult');
 
   if (!cred) {
-    resultDiv.innerHTML = `
-      <div class="result-box error fade-in">
-        <div class="result-title">❌ Credential Not Found</div>
-        <p style="font-size:13px; color:var(--text-muted);">No credential exists with Token ID #${tokenId}</p>
-      </div>
-    `;
+    resultDiv.innerHTML =
+      '<div class="result-box error fade-in">' +
+        '<div class="result-title">Credential Not Found</div>' +
+        '<p style="font-size:13px; color:var(--text-muted);">No credential exists with Token ID #' + tokenId + '</p>' +
+      '</div>';
     return;
   }
 
-  resultDiv.innerHTML = `
-    <div class="result-box fade-in">
-      <div class="result-title">✅ Credential Verified On-Chain</div>
-      <div class="result-grid">
-        <div class="result-item"><div class="result-item-label">Status</div><div class="result-item-value" style="color:var(--success);">Active</div></div>
-        <div class="result-item"><div class="result-item-label">Issuer Verified</div><div class="result-item-value" style="color:var(--success);">Yes — ${cred.issuerName}</div></div>
-        <div class="result-item"><div class="result-item-label">Reputation Score</div><div class="result-item-value" style="color:var(--success);">${cred.reputation}%</div></div>
-        <div class="result-item"><div class="result-item-label">Token ID</div><div class="result-item-value">#${cred.id}</div></div>
-        <div class="result-item"><div class="result-item-label">Not Revoked</div><div class="result-item-value" style="color:var(--success);">✓ Confirmed</div></div>
-        <div class="result-item"><div class="result-item-label">Block Timestamp</div><div class="result-item-value">${new Date().toLocaleString()}</div></div>
-      </div>
-    </div>
-  `;
+  resultDiv.innerHTML =
+    '<div class="result-box fade-in">' +
+      '<div class="result-title">Credential Verified On-Chain</div>' +
+      '<div class="result-grid">' +
+        '<div class="result-item"><div class="result-item-label">Status</div><div class="result-item-value" style="color:var(--success);">Active</div></div>' +
+        '<div class="result-item"><div class="result-item-label">Issuer Verified</div><div class="result-item-value" style="color:var(--success);">Yes -- ' + cred.issuerName + '</div></div>' +
+        '<div class="result-item"><div class="result-item-label">Reputation Score</div><div class="result-item-value" style="color:var(--success);">' + cred.reputation + '%</div></div>' +
+        '<div class="result-item"><div class="result-item-label">Token ID</div><div class="result-item-value">#' + cred.id + '</div></div>' +
+        '<div class="result-item"><div class="result-item-label">Not Revoked</div><div class="result-item-value" style="color:var(--success);">Confirmed</div></div>' +
+        '<div class="result-item"><div class="result-item-label">Block Timestamp</div><div class="result-item-value">' + new Date().toLocaleString() + '</div></div>' +
+      '</div>' +
+    '</div>';
 }
 
-// ===================== ZK PROOF =====================
+// ZK PROOF
 function generateZKProof() {
-  const attr = document.getElementById('zkAttribute').value;
-  const resultDiv = document.getElementById('zkResult');
+  var attr = document.getElementById('zkAttribute').value;
+  var resultDiv = document.getElementById('zkResult');
 
-  let proofName = '';
-  let proofValue = '';
-  let threshold = '';
+  var proofName = '';
+  var proofValue = '';
+  var threshold = '';
 
-  switch(attr) {
-    case 'performance':
-      proofName = 'Performance Threshold';
-      proofValue = 'Exceeds Expectations';
-      threshold = 'rating >= "Exceeds"';
-      break;
-    case 'tenure':
-      proofName = 'Tenure Threshold';
-      proofValue = '4.5 years';
-      threshold = 'tenure >= 4 years';
-      break;
-    case 'level':
-      proofName = 'Level Threshold';
-      proofValue = 'L6';
-      threshold = 'level >= L6';
-      break;
-    case 'skill':
-      proofName = 'Skill Match';
-      proofValue = 'Distributed Systems';
-      threshold = 'has_skill("Distributed Systems")';
-      break;
+  if (attr === 'performance') {
+    proofName = 'Performance Threshold';
+    proofValue = 'Exceeds Expectations';
+    threshold = 'rating >= Exceeds';
+  } else if (attr === 'tenure') {
+    proofName = 'Tenure Threshold';
+    proofValue = '4.5 years';
+    threshold = 'tenure >= 4 years';
+  } else if (attr === 'level') {
+    proofName = 'Level Threshold';
+    proofValue = 'L6';
+    threshold = 'level >= L6';
+  } else if (attr === 'skill') {
+    proofName = 'Skill Match';
+    proofValue = 'Distributed Systems';
+    threshold = 'has_skill(Distributed Systems)';
   }
 
-  resultDiv.innerHTML = `
-    <div class="result-box info fade-in" style="margin-top:16px;">
-      <div class="result-title">🔐 Generating Zero-Knowledge Proof...</div>
-      <p style="font-size:13px; color:var(--text-muted);">Proving: <code>${threshold}</code> without revealing actual value</p>
-    </div>
-  `;
+  resultDiv.innerHTML =
+    '<div class="result-box info fade-in" style="margin-top:16px;">' +
+      '<div class="result-title">Generating Zero-Knowledge Proof...</div>' +
+      '<p style="font-size:13px; color:var(--text-muted);">Proving: <code>' + threshold + '</code> without revealing actual value</p>' +
+    '</div>';
 
-  setTimeout(() => {
-    resultDiv.innerHTML = `
-      <div class="result-box fade-in" style="margin-top:16px;">
-        <div class="result-title">✅ ZK Proof Verified On-Chain</div>
-        <div class="result-grid">
-          <div class="result-item"><div class="result-item-label">Proof Type</div><div class="result-item-value">Groth16 Range Proof</div></div>
-          <div class="result-item"><div class="result-item-label">Attribute Proven</div><div class="result-item-value">${proofName}</div></div>
-          <div class="result-item"><div class="result-item-label">Threshold Met</div><div class="result-item-value" style="color:var(--success);">✓ Yes</div></div>
-          <div class="result-item"><div class="result-item-label">Value Revealed</div><div class="result-item-value" style="color:var(--danger);">✗ None</div></div>
-          <div class="result-item" style="grid-column:1/-1;"><div class="result-item-label">Proof Hash</div><div class="result-item-value" style="font-family:monospace; font-size:11px;">0x${Math.random().toString(16).slice(2, 66)}</div></div>
-        </div>
-      </div>
-
-      <div class="offer-card fade-in">
-        <h3>🎉 Offer Extended</h3>
-        <p>Stripe verified Sarah's credential without seeing her private rating.</p>
-        <div class="offer-details">
-          <div class="offer-detail"><div class="offer-detail-value">Staff Engineer</div><div class="offer-detail-label">Role</div></div>
-          <div class="offer-detail"><div class="offer-detail-value">L7</div><div class="offer-detail-label">Level</div></div>
-          <div class="offer-detail"><div class="offer-detail-value">48h</div><div class="offer-detail-label">Time to Offer</div></div>
-        </div>
-      </div>
-    `;
+  setTimeout(function() {
+    resultDiv.innerHTML =
+      '<div class="result-box fade-in" style="margin-top:16px;">' +
+        '<div class="result-title">ZK Proof Verified On-Chain</div>' +
+        '<div class="result-grid">' +
+          '<div class="result-item"><div class="result-item-label">Proof Type</div><div class="result-item-value">Groth16 Range Proof</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Attribute Proven</div><div class="result-item-value">' + proofName + '</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Threshold Met</div><div class="result-item-value" style="color:var(--success);">Yes</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Value Revealed</div><div class="result-item-value" style="color:var(--danger);">None</div></div>' +
+          '<div class="result-item" style="grid-column:1/-1;"><div class="result-item-label">Proof Hash</div><div class="result-item-value" style="font-family:monospace; font-size:11px;">0x' + Math.random().toString(16).slice(2, 66) + '</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="offer-card fade-in">' +
+        '<h3>Offer Extended</h3>' +
+        '<p>Stripe verified Sarahs credential without seeing her private rating.</p>' +
+        '<div class="offer-details">' +
+          '<div class="offer-detail"><div class="offer-detail-value">Staff Engineer</div><div class="offer-detail-label">Role</div></div>' +
+          '<div class="offer-detail"><div class="offer-detail-value">L7</div><div class="offer-detail-label">Level</div></div>' +
+          '<div class="offer-detail"><div class="offer-detail-value">48h</div><div class="offer-detail-label">Time to Offer</div></div>' +
+        '</div>' +
+      '</div>';
   }, 1500);
 }
 
-// ===================== AI MATCH =====================
+// AI MATCH
 function runAIMatch() {
-  const btn = document.getElementById('aiRunBtn');
-  const logDiv = document.getElementById('agentLog');
-  const resultsDiv = document.getElementById('matchResults');
+  var btn = document.getElementById('aiRunBtn');
+  var logDiv = document.getElementById('agentLog');
+  var resultsDiv = document.getElementById('matchResults');
 
   btn.disabled = true;
   btn.innerHTML = '<span class="typing-cursor">AI Agent analyzing</span>';
@@ -714,53 +709,53 @@ function runAIMatch() {
   resultsDiv.classList.add('hidden');
   document.getElementById('allProofResult').innerHTML = '';
 
-  const logs = [
+  var logs = [
     { text: '> Initializing AI Matching Agent v2.1...', cls: 'log-cmd', delay: 200 },
     { text: '> Connected to People Ledger protocol', cls: 'log-ok', delay: 400 },
     { text: '> Loading credential schema for wallet 0xf39F...2266', cls: 'log-info', delay: 600 },
     { text: '> Found 3 active credentials', cls: 'log-ok', delay: 800 },
     { text: '> Parsing job description...', cls: 'log-cmd', delay: 1000 },
-    { text: '> Extracted: "5+ years experience" → tenure_threshold = 5', cls: 'log-info', delay: 1300 },
-    { text: '> Extracted: "Exceeds Expectations" → performance_threshold = "Exceeds"', cls: 'log-info', delay: 1500 },
-    { text: '> Extracted: "L6+ equivalent" → level_threshold = "L6"', cls: 'log-info', delay: 1700 },
-    { text: '> Extracted: "billing, payments, financial systems" → skills_required = [billing, payments]', cls: 'log-info', delay: 1900 },
-    { text: '> Extracted: "Python and AWS" → skills_required += [python, aws]', cls: 'log-info', delay: 2100 },
-    { text: '> Extracted: "$10M+ daily volume" → scale_threshold = 10000000', cls: 'log-info', delay: 2300 },
+    { text: '> Extracted: "5+ years experience" -> tenure_threshold = 5', cls: 'log-info', delay: 1300 },
+    { text: '> Extracted: "Exceeds Expectations" -> performance_threshold = "Exceeds"', cls: 'log-info', delay: 1500 },
+    { text: '> Extracted: "L6+ equivalent" -> level_threshold = "L6"', cls: 'log-info', delay: 1700 },
+    { text: '> Extracted: "billing, payments, financial systems" -> skills_required = [billing, payments]', cls: 'log-info', delay: 1900 },
+    { text: '> Extracted: "Python and AWS" -> skills_required += [python, aws]', cls: 'log-info', delay: 2100 },
+    { text: '> Extracted: "$10M+ daily volume" -> scale_threshold = 10000000', cls: 'log-info', delay: 2300 },
     { text: '> Querying credential #0 (Employment, AWS)...', cls: 'log-cmd', delay: 2600 },
-    { text: '> ✓ Tenure: 4.5 years (public) — MEETS threshold (5yr strict, 4yr+ acceptable)', cls: 'log-ok', delay: 2800 },
-    { text: '> ✓ Level: L6 (public) — MEETS threshold L6+', cls: 'log-ok', delay: 3000 },
-    { text: '> ✓ Skills: Distributed Systems, Billing, Python, AWS — ALL MATCHED', cls: 'log-ok', delay: 3200 },
+    { text: '> OK Tenure: 4.5 years (public) -- MEETS threshold (5yr strict, 4yr+ acceptable)', cls: 'log-ok', delay: 2800 },
+    { text: '> OK Level: L6 (public) -- MEETS threshold L6+', cls: 'log-ok', delay: 3000 },
+    { text: '> OK Skills: Distributed Systems, Billing, Python, AWS -- ALL MATCHED', cls: 'log-ok', delay: 3200 },
     { text: '> Querying credential #1 (Performance Review, ZK-locked)...', cls: 'log-cmd', delay: 3500 },
-    { text: '> ⚠ Rating encrypted. Requesting ZK proof: rating >= "Exceeds"', cls: 'log-warn', delay: 3700 },
-    { text: '> ✓ ZK proof verified: rating_threshold_met = true', cls: 'log-ok', delay: 3900 },
+    { text: '> WARN Rating encrypted. Requesting ZK proof: rating >= "Exceeds"', cls: 'log-warn', delay: 3700 },
+    { text: '> OK ZK proof verified: rating_threshold_met = true', cls: 'log-ok', delay: 3900 },
     { text: '> Querying credential #2 (Skill Cert, AWS Architect)...', cls: 'log-cmd', delay: 4200 },
-    { text: '> ✓ AWS certification confirmed (public)', cls: 'log-ok', delay: 4400 },
+    { text: '> OK AWS certification confirmed (public)', cls: 'log-ok', delay: 4400 },
     { text: '> Computing match score...', cls: 'log-cmd', delay: 4700 },
-    { text: '> ✅ MATCH SCORE: 6/6 requirements verified', cls: 'log-ok', delay: 5000 },
+    { text: '> OK MATCH SCORE: 6/6 requirements verified', cls: 'log-ok', delay: 5000 },
     { text: '> Generating proof request bundle...', cls: 'log-cmd', delay: 5200 },
-    { text: '> Ready for candidate approval.', cls: 'log-ok', delay: 5400 },
+    { text: '> Ready for candidate approval.', cls: 'log-ok', delay: 5400 }
   ];
 
   logDiv.innerHTML = '';
-  let i = 0;
+  var i = 0;
 
   function showNextLog() {
     if (i >= logs.length) {
       btn.disabled = false;
-      btn.innerHTML = '<span>▶</span> Run AI Agent';
+      btn.innerHTML = '<span>Run AI Agent</span>';
       resultsDiv.classList.remove('hidden');
       resultsDiv.classList.add('fade-in');
       renderMatchTable();
       return;
     }
-    const log = logs[i];
-    const line = document.createElement('div');
+    var log = logs[i];
+    var line = document.createElement('div');
     line.className = 'log-line ' + log.cls;
     line.textContent = log.text;
     logDiv.appendChild(line);
     logDiv.scrollTop = logDiv.scrollHeight;
     i++;
-    setTimeout(showNextLog, log.delay - (i > 0 ? logs[i-1].delay : 0));
+    setTimeout(showNextLog, 200);
   }
 
   showNextLog();
@@ -769,70 +764,66 @@ function runAIMatch() {
 function renderMatchTable() {
   matchData = [
     { req: 'Experience Level', extracted: 'L6+', credential: 'L6 (AWS Senior Engineer)', status: 'ok', proof: 'Public' },
-    { req: 'Tenure', extracted: '5+ years', credential: '4.5 years (Jan 2020 → Present)', status: 'ok', proof: 'Public' },
-    { req: 'Performance Rating', extracted: '"Exceeds Expectations"', credential: '🔒 Encrypted (ZK-Locked)', status: 'warn', proof: 'ZK Range Proof' },
-    { req: 'Distributed Systems', extracted: 'Required', credential: '✓ AWS Billing Pipeline ($40M/day)', status: 'ok', proof: 'Public' },
-    { req: 'Python & AWS', extracted: 'Required', credential: '✓ Certified AWS Solutions Architect', status: 'ok', proof: 'Public' },
-    { req: 'Billing / Payments', extracted: 'Required', credential: '✓ Built AWS Billing Pipeline', status: 'ok', proof: 'Public' },
+    { req: 'Tenure', extracted: '5+ years', credential: '4.5 years (Jan 2020 -> Present)', status: 'ok', proof: 'Public' },
+    { req: 'Performance Rating', extracted: 'Exceeds Expectations', credential: 'Encrypted (ZK-Locked)', status: 'warn', proof: 'ZK Range Proof' },
+    { req: 'Distributed Systems', extracted: 'Required', credential: 'OK AWS Billing Pipeline ($40M/day)', status: 'ok', proof: 'Public' },
+    { req: 'Python & AWS', extracted: 'Required', credential: 'OK Certified AWS Solutions Architect', status: 'ok', proof: 'Public' },
+    { req: 'Billing / Payments', extracted: 'Required', credential: 'OK Built AWS Billing Pipeline', status: 'ok', proof: 'Public' }
   ];
 
-  const tbody = document.getElementById('matchTableBody');
-  tbody.innerHTML = matchData.map(m => {
-    const dotClass = m.status === 'ok' ? 'ok' : m.status === 'warn' ? 'warn' : 'miss';
-    const statusText = m.status === 'ok' ? 'Verified' : m.status === 'warn' ? 'ZK Proof Needed' : 'Missing';
-    const statusColor = m.status === 'ok' ? 'var(--success)' : m.status === 'warn' ? 'var(--warning)' : 'var(--danger)';
+  var tbody = document.getElementById('matchTableBody');
+  tbody.innerHTML = matchData.map(function(m) {
+    var dotClass = m.status === 'ok' ? 'ok' : m.status === 'warn' ? 'warn' : 'miss';
+    var statusText = m.status === 'ok' ? 'Verified' : m.status === 'warn' ? 'ZK Proof Needed' : 'Missing';
+    var statusColor = m.status === 'ok' ? 'var(--success)' : m.status === 'warn' ? 'var(--warning)' : 'var(--danger)';
 
-    return `
-      <tr>
-        <td><strong>${m.req}</strong></td>
-        <td>${m.extracted}</td>
-        <td>${m.credential}</td>
-        <td>
-          <div class="match-status">
-            <div class="match-status-dot ${dotClass}"></div>
-            <span style="color:${statusColor}; font-weight:600;">${statusText}</span>
-          </div>
-        </td>
-        <td><span class="badge badge-${m.proof === 'Public' ? 'success' : m.proof === 'ZK Range Proof' ? 'warning' : 'info'}">${m.proof}</span></td>
-      </tr>
-    `;
+    return '<tr>' +
+      '<td><strong>' + m.req + '</strong></td>' +
+      '<td>' + m.extracted + '</td>' +
+      '<td>' + m.credential + '</td>' +
+      '<td>' +
+        '<div class="match-status">' +
+          '<div class="match-status-dot ' + dotClass + '"></div>' +
+          '<span style="color:' + statusColor + '; font-weight:600;">' + statusText + '</span>' +
+        '</div>' +
+      '</td>' +
+      '<td><span class="badge badge-' + (m.proof === 'Public' ? 'success' : m.proof === 'ZK Range Proof' ? 'warning' : 'info') + '">' + m.proof + '</span></td>' +
+    '</tr>';
   }).join('');
 }
 
 function generateAllProofs() {
-  const btn = document.getElementById('genAllBtn');
-  const resultDiv = document.getElementById('allProofResult');
+  var btn = document.getElementById('genAllBtn');
+  var resultDiv = document.getElementById('allProofResult');
 
   btn.disabled = true;
   btn.innerHTML = '<span class="typing-cursor">Generating proofs</span>';
 
-  setTimeout(() => {
+  setTimeout(function() {
     btn.disabled = false;
-    btn.innerHTML = '<span>⚡</span> Generate All Proofs';
+    btn.innerHTML = '<span>Generate All Proofs</span>';
 
-    resultDiv.innerHTML = `
-      <div class="result-box fade-in" style="margin-top:20px;">
-        <div class="result-title">✅ All Proofs Generated & Verified</div>
-        <div class="result-grid">
-          <div class="result-item"><div class="result-item-label">Proofs Generated</div><div class="result-item-value">6 / 6</div></div>
-          <div class="result-item"><div class="result-item-label">ZK Proofs</div><div class="result-item-value">1 (Performance)</div></div>
-          <div class="result-item"><div class="result-item-label">Public Verifications</div><div class="result-item-value">5</div></div>
-          <div class="result-item"><div class="result-item-label">Data Revealed</div><div class="result-item-value" style="color:var(--danger);">0 attributes</div></div>
-        </div>
-      </div>
-
-      <div class="offer-card fade-in">
-        <h3>🎉 Offer Ready: Staff Engineer, L7</h3>
-        <p>Stripe's AI agent verified all 6 requirements without decrypting Sarah's performance review.</p>
-        <div class="offer-details">
-          <div class="offer-detail"><div class="offer-detail-value">6/6</div><div class="offer-detail-label">Requirements</div></div>
-          <div class="offer-detail"><div class="offer-detail-value">0</div><div class="offer-detail-label">Data Leaked</div></div>
-          <div class="offer-detail"><div class="offer-detail-value">48h</div><div class="offer-detail-label">Time to Offer</div></div>
-          <div class="offer-detail"><div class="offer-detail-value">$80K</div><div class="offer-detail-label">Comp Saved</div></div>
-        </div>
-        <p style="margin-top:16px; font-size:12px; color:var(--text-muted);">In the old world: 3 weeks, reference calls, down-leveling. In the new world: 48 hours, zero-knowledge proofs, full level.</p>
-      </div>
-    `;
+    resultDiv.innerHTML =
+      '<div class="result-box fade-in" style="margin-top:20px;">' +
+        '<div class="result-title">All Proofs Generated & Verified</div>' +
+        '<div class="result-grid">' +
+          '<div class="result-item"><div class="result-item-label">Proofs Generated</div><div class="result-item-value">6 / 6</div></div>' +
+          '<div class="result-item"><div class="result-item-label">ZK Proofs</div><div class="result-item-value">1 (Performance)</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Public Verifications</div><div class="result-item-value">5</div></div>' +
+          '<div class="result-item"><div class="result-item-label">Data Revealed</div><div class="result-item-value" style="color:var(--danger);">0 attributes</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="offer-card fade-in">' +
+        '<h3>Offer Ready: Staff Engineer, L7</h3>' +
+        '<p>Stripes AI agent verified all 6 requirements without decrypting Sarahs performance review.</p>' +
+        '<div class="offer-details">' +
+          '<div class="offer-detail"><div class="offer-detail-value">6/6</div><div class="offer-detail-label">Requirements</div></div>' +
+          '<div class="offer-detail"><div class="offer-detail-value">0</div><div class="offer-detail-label">Data Leaked</div></div>' +
+          '<div class="offer-detail"><div class="offer-detail-value">48h</div><div class="offer-detail-label">Time to Offer</div></div>' +
+          '<div class="offer-detail"><div class="offer-detail-value">$80K</div><div class="offer-detail-label">Comp Saved</div></div>' +
+        '</div>' +
+        '<p style="margin-top:16px; font-size:12px; color:var(--text-muted);">In the old world: 3 weeks, reference calls, down-leveling. In the new world: 48 hours, zero-knowledge proofs, full level.</p>' +
+      '</div>';
   }, 2000);
 }
 </script>
