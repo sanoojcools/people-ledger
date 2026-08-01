@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People Ledger — Credential Passport</title>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-raised: #1a1a1a;
+  --border: #262626;
+  --text-primary: #fafafa;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #737373;
+  --accent: #22c55e;
+  --accent-dim: rgba(34,197,94,0.1);
+  --accent-border: rgba(34,197,94,0.2);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.1);
+  --red: #ef4444;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.container { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+
+/* Header */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent); font-weight: 500;
+}
+.wallet-btn {
+  padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-primary);
+  font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.wallet-btn:hover { border-color: var(--text-tertiary); }
+.wallet-btn.connected { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* Network pill */
+.network-pill {
+  font-size: 11px; padding: 2px 8px; border-radius: 6px;
+  background: var(--surface-raised); color: var(--text-tertiary);
+  font-weight: 500; margin-left: 8px;
+}
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab {
+  padding: 10px 16px; border: none; background: none; cursor: pointer;
+  font-size: 14px; color: var(--text-tertiary); font-weight: 500;
+  font-family: inherit; position: relative; transition: color 0.15s;
+}
+.tab:hover { color: var(--text-secondary); }
+.tab.active { color: var(--text-primary); }
+.tab.active::after {
+  content: ""; position: absolute; bottom: -1px; left: 12px; right: 12px;
+  height: 2px; background: var(--text-primary); border-radius: 2px;
+}
+
+/* Panels */
+.panel { display: none; animation: fadeIn 0.25s ease-out; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+}
+.card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.card-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+.card-meta { font-size: 12px; color: var(--text-tertiary); }
+
+/* Narrator box */
+.narrator {
+  background: var(--surface-raised); border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0; padding: 14px 16px; margin-bottom: 16px;
+  font-size: 14px; line-height: 1.6; color: var(--text-secondary);
+}
+.narrator strong { color: var(--text-primary); font-weight: 500; }
+
+/* Inputs */
+.input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 10px; font-size: 14px; background: var(--bg);
+  color: var(--text-primary); font-family: inherit; transition: border-color 0.15s;
+}
+.input:focus { outline: none; border-color: var(--text-tertiary); }
+.input::placeholder { color: var(--text-tertiary); }
+select.input { cursor: pointer; appearance: none; }
+textarea.input { min-height: 80px; resize: vertical; }
+.label { font-size: 12px; color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: 4px; }
+
+/* Buttons */
+.btn {
+  padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-primary);
+  font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--surface-raised); }
+.btn-primary { background: var(--text-primary); color: var(--bg); border-color: var(--text-primary); }
+.btn-primary:hover { opacity: 0.9; background: var(--text-primary); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-full { width: 100%; }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.spacer { height: 12px; }
+
+/* Credential card */
+.cred-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.cred-card:hover { border-color: var(--text-tertiary); }
+.cred-row { display: flex; align-items: flex-start; gap: 12px; }
+.cred-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--surface-raised); display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cred-body { flex: 1; }
+.cred-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.cred-org { font-size: 12px; color: var(--text-secondary); }
+.cred-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+}
+.cred-stat { text-align: center; }
+.cred-stat-label { font-size: 11px; color: var(--text-tertiary); text-transform: lowercase; }
+.cred-stat-value { font-size: 13px; font-weight: 500; margin-top: 2px; }
+
+/* Badges */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+}
+.pill-green { background: var(--accent-dim); color: var(--accent); }
+.pill-amber { background: var(--amber-dim); color: var(--amber); }
+.pill-gray { background: var(--surface-raised); color: var(--text-secondary); }
+.pill-red { background: rgba(239,68,68,0.1); color: var(--red); }
+
+/* ZK box */
+.zk-box {
+  background: var(--accent-dim); border: 1px solid var(--accent-border);
+  border-radius: 10px; padding: 16px;
+}
+.hash {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);
+  background: var(--bg); padding: 8px 10px; border-radius: 8px;
+  word-break: break-all; border: 1px solid var(--border);
+}
+
+/* Match rows */
+.match-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.match-row:last-child { border-bottom: none; }
+.match-label { font-size: 13px; color: var(--text-secondary); }
+.match-ok { font-size: 13px; font-weight: 500; color: var(--accent); }
+.match-zk { font-size: 13px; font-weight: 500; color: #3b82f6; }
+
+/* Flow */
+.flow { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 20px; }
+.flow-box {
+  flex: 1; border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 6px; text-align: center; font-size: 12px;
+  transition: all 0.2s;
+}
+.flow-box.active { border-color: var(--text-primary); background: var(--surface-raised); }
+.flow-box .fl { font-weight: 600; display: block; margin-top: 4px; }
+.flow-box .fs { font-size: 11px; color: var(--text-tertiary); display: block; margin-top: 2px; }
+.flow-arrow { color: var(--text-tertiary); font-size: 16px; }
+
+/* Typing */
+.typing { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); min-height: 100px; line-height: 1.8; }
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--surface-raised); border: 1px solid var(--border);
+  padding: 12px 20px; border-radius: 10px; font-size: 13px;
+  color: var(--text-primary); z-index: 100;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .flow { flex-wrap: wrap; }
+  .flow-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color: var(--accent); flex-shrink:0;">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M17 3.8H7C5.78497 3.8 4.8 4.78497 4.8 6V15.7647C4.8 16.574 5.24438 17.318 5.95698 17.7017L10.957 20.394C11.6081 20.7446 12.3919 20.7446 13.043 20.394L18.043 17.7017C18.7556 17.318 19.2 16.574 19.2 15.7647V6C19.2 4.78497 18.215 3.8 17 3.8ZM7 2C4.79086 2 3 3.79086 3 6V15.7647C3 17.2362 3.80796 18.5889 5.1036 19.2866L10.1036 21.9789C11.2875 22.6164 12.7125 22.6164 13.8964 21.9789L18.8964 19.2866C20.192 18.5889 21 17.2362 21 15.7647V6C21 3.79086 19.2091 2 17 2H7Z" fill="currentColor"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M16.7248 8.63051C17.0763 8.98198 17.0763 9.55183 16.7248 9.9033L11.7627 14.8654C11.4113 15.2169 10.8414 15.2169 10.4899 14.8654L7.81839 12.1939C7.46692 11.8424 7.46691 11.2726 7.81839 10.9211C8.16986 10.5696 8.7397 10.5696 9.09118 10.9211L11.1263 12.9562L15.4521 8.63051C15.8035 8.27904 16.3734 8.27904 16.7248 8.63051Z" fill="currentColor"/>
+      </svg>
+      <h1>People Ledger</h1>
+      <span class="badge">MVP</span>
+      <span class="network-pill" id="network-pill">Not connected</span>
+    </div>
+    <button class="wallet-btn" id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="flow-box active" id="f0"><span class="fl">Issue</span><span class="fs">Employer signs</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" id="f1"><span class="fl">Hold</span><span class="fs">Sarah owns it</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" id="f2"><span class="fl">Match</span><span class="fs">AI reads JD</span></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box" id="f3"><span class="fl">Prove</span><span class="fs">ZK unlock</span></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)">Issue</button>
+    <button class="tab" onclick="switchTab(1)">Wallet</button>
+    <button class="tab" onclick="switchTab(2)">Verify</button>
+    <button class="tab" onclick="switchTab(3)">ZK Proof</button>
+  </div>
+
+  <!-- TAB 0: ISSUE -->
+  <div class="panel active" id="tab-0">
+    <div class="narrator">
+      <strong>Sarah's manager at AWS just finished her H1 2024 review.</strong> He issues a cryptographically signed credential that Sarah owns forever. The actual rating is encrypted — only the hash lives on-chain.
+    </div>
+
+    <div class="card">
+      <p class="card-title" style="margin-bottom:12px;">Issue Credential</p>
+
+      <div class="grid-2">
+        <div>
+          <span class="label">Employee Address</span>
+          <input class="input" id="issue-employee" placeholder="0x..." value="">
+        </div>
+        <div>
+          <span class="label">Credential Type</span>
+          <select class="input" id="issue-type">
+            <option value="employment">Employment</option>
+            <option value="performance" selected>Performance Review</option>
+            <option value="skill">Skill Certification</option>
+            <option value="education">Education</option>
+          </select>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div>
+        <span class="label">Title</span>
+        <input class="input" id="issue-title" value="Senior Software Engineer — H1 2024">
+      </div>
+      <div class="spacer"></div>
+      <div>
+        <span class="label">Organization</span>
+        <input class="input" id="issue-org" value="Amazon Web Services">
+      </div>
+      <div class="spacer"></div>
+      <div>
+        <span class="label">Description (JSON or text)</span>
+        <textarea class="input" id="issue-desc">{"rating":"Exceeds Expectations","level":"L6","department":"Engineering","manager":"David Park"}</textarea>
+      </div>
+      <div class="spacer"></div>
+      <div>
+        <span class="label">Visibility</span>
+        <div class="grid-3">
+          <label style="border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; cursor:pointer; font-size:13px; display:block;" onclick="setVis(0)">
+            <input type="radio" name="vis" style="display:none" id="vis-0">
+            <div style="font-weight:600;">Public</div>
+            <div class="card-meta" style="margin-top:2px;">Full disclosure</div>
+          </label>
+          <label style="border:2px solid var(--text-primary); border-radius:10px; padding:12px; text-align:center; cursor:pointer; font-size:13px; display:block; background:var(--surface-raised);" onclick="setVis(1)">
+            <input type="radio" name="vis" style="display:none" id="vis-1" checked>
+            <div style="font-weight:600;">ZK-Verifiable</div>
+            <div class="card-meta" style="margin-top:2px;">Proof only</div>
+          </label>
+          <label style="border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; cursor:pointer; font-size:13px; display:block;" onclick="setVis(2)">
+            <input type="radio" name="vis" style="display:none" id="vis-2">
+            <div style="font-weight:600;">Private</div>
+            <div class="card-meta" style="margin-top:2px;">Holder only</div>
+          </label>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary btn-full" id="btn-mint" onclick="mintCredential()">Mint Credential</button>
+      <div id="mint-tx" class="hidden" style="margin-top:12px;">
+        <div class="pill pill-green">✓ Credential minted</div>
+        <div class="hash" style="margin-top:8px;" id="mint-hash"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: WALLET -->
+  <div class="panel" id="tab-1">
+    <div class="narrator">
+      <strong>The credential is now in Sarah's wallet.</strong> She owns it. AWS can't revoke it without a trace. The actual performance rating is encrypted — Sarah sees it. The world sees a locked box.
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <p class="card-title" style="margin:0;">Professional Passport</p>
+      <span class="pill pill-gray" id="cred-count">0 credentials</span>
+    </div>
+
+    <div id="wallet-empty" style="text-align:center; padding: 40px 0; color: var(--text-tertiary);">
+      <p style="font-size:14px;">No credentials found</p>
+      <p style="font-size:12px; margin-top:4px;">Connect your wallet or mint a credential first</p>
+    </div>
+
+    <div id="wallet-list"></div>
+  </div>
+
+  <!-- TAB 2: VERIFY -->
+  <div class="panel" id="tab-2">
+    <div class="narrator">
+      <strong>Stripe's recruiter wants to verify Sarah's credential.</strong> They don't call AWS. They query the blockchain. Instant. Immutable. No trust required.
+    </div>
+
+    <div class="card">
+      <p class="card-title" style="margin-bottom:12px;">Verify Credential</p>
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <input class="input" id="verify-id" placeholder="Token ID (e.g. 0)" style="flex:1;">
+        <button class="btn btn-primary" onclick="verifyCredential()">Verify</button>
+      </div>
+
+      <div id="verify-result" class="hidden">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <span style="color:var(--accent); font-size:20px;">✓</span>
+          <span style="font-weight:600; color:var(--accent);">Valid credential</span>
+        </div>
+        <div class="grid-2">
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px;">
+            <div class="card-meta">Status</div>
+            <div style="font-size:14px; font-weight:600; color:var(--accent); margin-top:4px;" id="v-status">Active</div>
+          </div>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px;">
+            <div class="card-meta">Issuer</div>
+            <div style="font-size:14px; font-weight:600; color:var(--accent); margin-top:4px;" id="v-issuer">Verified</div>
+          </div>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px;">
+            <div class="card-meta">Reputation</div>
+            <div style="font-size:14px; font-weight:600; margin-top:4px;" id="v-rep">100%</div>
+          </div>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px;">
+            <div class="card-meta">Token ID</div>
+            <div style="font-size:14px; font-weight:600; margin-top:4px; font-family:var(--font-mono);" id="v-token">#0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: ZK PROOF -->
+  <div class="panel" id="tab-3">
+    <div class="narrator">
+      <strong>Sarah doesn't send her review.</strong> She generates a zero-knowledge proof that says: "My H1 2024 rating meets or exceeds the 'Exceeds Expectations' threshold." Stripe sees the proof. They never see the number.
+    </div>
+
+    <div class="card">
+      <p class="card-title" style="margin-bottom:4px;">Zero-Knowledge Proof</p>
+      <p class="card-subtitle">Prove an attribute without revealing the full credential.</p>
+
+      <div style="margin-bottom:12px;">
+        <span class="label">Select attribute to prove</span>
+        <select class="input" id="zk-select" onchange="updateZKBtn()">
+          <option value="">Select attribute...</option>
+          <option value="perf">Performance: Meets or exceeds "Exceeds Expectations"</option>
+          <option value="tenure">Tenure: Greater than 4 years</option>
+          <option value="level">Level: L6 or above</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="zk-btn" onclick="generateZK()" disabled>Generate ZK Proof</button>
+
+      <div id="zk-result" class="hidden" style="margin-top:16px;">
+        <div class="zk-box">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+            <span style="color:var(--accent); font-size:18px;">✓</span>
+            <span style="font-weight:600; color:var(--accent);">Proof verified on-chain</span>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <div class="card-meta" style="margin-bottom:4px;">Attribute proven</div>
+            <div style="font-size:14px;" id="zk-attr-text"></div>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <div class="card-meta" style="margin-bottom:4px;">Proof hash</div>
+            <div class="hash" id="zk-hash-text"></div>
+          </div>
+
+          <div style="padding-top:10px; border-top:1px solid var(--accent-border);">
+            <p style="font-size:12px; color:var(--text-secondary); margin:0;">
+              Stripe confirmed this attribute without accessing the full credential data. Rating, exact dates, and salary remain private.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="final-offer" class="hidden" style="margin-top:12px;">
+      <div class="card" style="border-color: var(--accent); background: var(--accent-dim);">
+        <div class="cred-row">
+          <div class="cred-icon" style="background: var(--accent-dim);">
+            <span style="color:var(--accent); font-size:18px;">✓</span>
+          </div>
+          <div class="cred-body">
+            <div class="cred-title">Offer Extended: Staff Engineer, L7</div>
+            <div class="cred-org">Stripe • 48 hours from first contact</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ CONTRACT ABI (INLINE) ============
+const CONTRACT_ABI = [
+  "function registerIssuer(string name, string domain) external",
+  "function mintCredential(address employee, string credentialType, string title, string organization, string description, bytes32 dataHash, uint256 expiresAt, uint8 visibility) external returns (uint256)",
+  "function verifyCredential(uint256 tokenId) external view returns (bool valid, bool expired, bool revoked, bool issuerVerified, uint256 reputationScore)",
+  "function getEmployeeCredentials(address employee) external view returns (uint256[] memory)",
+  "function getCredential(uint256 tokenId) external view returns (tuple(string credentialType, string title, string organization, string description, uint256 issuedAt, uint256 expiresAt, bytes32 dataHash, address issuer, bool revoked, uint8 visibility))",
+  "function issuers(address) external view returns (string name, string domain, bool verified, uint256 reputationScore)",
+  "function isIssuer(address account) external view returns (bool)",
+  "function verifyZKAttribute(uint256 tokenId, bytes32 proofHash, string attribute) external view returns (bool)",
+  "event CredentialMinted(uint256 indexed tokenId, address indexed employee, address indexed issuer, string credentialType, bytes32 dataHash)"
+];
+
+// ============ CONFIG ============
+// Paste your deployed contract address here after running deploy.js
+const CONTRACT_ADDRESS = localStorage.getItem('pl_contract') || '';
+
+// Demo mode: simulated credentials when no contract is connected
+let demoMode = true;
+let provider = null;
+let signer = null;
+let contract = null;
+let account = null;
+
+// Demo credentials
+let demoCredentials = [
+  {
+    tokenId: 0,
+    credentialType: "employment",
+    title: "Senior Software Engineer",
+    organization: "Amazon Web Services",
+    description: '{"department":"Engineering","level":"L6","startDate":"2020-01-15"}',
+    issuedAt: Math.floor(Date.now()/1000) - 86400*180,
+    expiresAt: 0,
+    dataHash: "0x8f3a2e1b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f",
+    issuer: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    revoked: false,
+    visibility: 0
+  },
+  {
+    tokenId: 1,
+    credentialType: "performance",
+    title: "Performance Review — H1 2024",
+    organization: "Amazon Web Services",
+    description: '{"rating":"Exceeds Expectations","level":"L6","manager":"David Park"}',
+    issuedAt: Math.floor(Date.now()/1000) - 86400*30,
+    expiresAt: 0,
+    dataHash: "0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b",
+    issuer: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    revoked: false,
+    visibility: 1
+  }
+];
+
+// ============ WALLET CONNECTION ============
+async function connectWallet() {
+  if (!window.ethereum) {
+    showToast("MetaMask not installed");
+    return;
+  }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    account = accounts[0];
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+
+    const network = await provider.getNetwork();
+    const chainId = Number(network.chainId);
+    const netNames = { 31337: 'Localhost', 80002: 'Polygon Amoy', 11155111: 'Sepolia' };
+    document.getElementById('network-pill').textContent = netNames[chainId] || `Chain ${chainId}`;
+
+    const btn = document.getElementById('connect-btn');
+    btn.textContent = account.slice(0,6) + '...' + account.slice(-4);
+    btn.classList.add('connected');
+
+    if (CONTRACT_ADDRESS) {
+      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      demoMode = false;
+      showToast("Connected to contract");
+      loadWallet();
+    } else {
+      showToast("Connected (demo mode — paste contract address in code)");
+    }
+  } catch (e) {
+    showToast("Connection failed: " + e.message);
+  }
+}
+
+// ============ TABS ============
+function switchTab(n) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===n));
+  document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i===n));
+  document.querySelectorAll('.flow-box').forEach((b,i) => b.classList.toggle('active', i===n));
+  if (n === 1) loadWallet();
+}
+
+// ============ VISIBILITY ============
+let selectedVis = 1;
+function setVis(v) {
+  selectedVis = v;
+  document.querySelectorAll('input[name="vis"]').forEach((r,i) => {
+    r.checked = i === v;
+    r.parentElement.style.border = i === v ? '2px solid var(--text-primary)' : '1px solid var(--border)';
+    r.parentElement.style.background = i === v ? 'var(--surface-raised)' : '';
+  });
+}
+
+// ============ MINT ============
+async function mintCredential() {
+  const btn = document.getElementById('btn-mint');
+  const employee = document.getElementById('issue-employee').value || account;
+  const type = document.getElementById('issue-type').value;
+  const title = document.getElementById('issue-title').value;
+  const org = document.getElementById('issue-org').value;
+  const desc = document.getElementById('issue-desc').value;
+
+  if (!employee) { showToast("Enter employee address"); return; }
+
+  btn.disabled = true;
+  btn.textContent = "Minting...";
+
+  if (demoMode) {
+    // Simulate mint
+    await new Promise(r => setTimeout(r, 1200));
+    const newId = demoCredentials.length;
+    demoCredentials.push({
+      tokenId: newId,
+      credentialType: type,
+      title: title,
+      organization: org,
+      description: desc,
+      issuedAt: Math.floor(Date.now()/1000),
+      expiresAt: 0,
+      dataHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join(""),
+      issuer: account || "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      revoked: false,
+      visibility: selectedVis
+    });
+    document.getElementById('mint-hash').textContent = "0x" + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join("") + " (simulated)";
+    document.getElementById('mint-tx').classList.remove('hidden');
+    showToast("Credential minted (demo)");
+  } else {
+    try {
+      const dataHash = ethers.keccak256(ethers.toUtf8Bytes(desc));
+      const tx = await contract.mintCredential(employee, type, title, org, desc, dataHash, 0, selectedVis);
+      document.getElementById('mint-hash').textContent = tx.hash;
+      document.getElementById('mint-tx').classList.remove('hidden');
+      await tx.wait();
+      showToast("Credential minted on-chain!");
+    } catch (e) {
+      showToast("Mint failed: " + e.message);
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Mint Credential";
+}
+
+// ============ WALLET ============
+async function loadWallet() {
+  const list = document.getElementById('wallet-list');
+  const empty = document.getElementById('wallet-empty');
+
+  let creds = demoCredentials;
+
+  if (!demoMode && contract && account) {
+    try {
+      const ids = await contract.getEmployeeCredentials(account);
+      creds = await Promise.all(ids.map(async (id) => {
+        const c = await contract.getCredential(id);
+        return { tokenId: Number(id), ...c };
+      }));
+    } catch (e) {
+      showToast("Failed to load credentials");
+    }
+  }
+
+  document.getElementById('cred-count').textContent = creds.length + " credential" + (creds.length !== 1 ? "s" : "");
+
+  if (creds.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  list.innerHTML = creds.map(c => renderCredential(c)).join('');
+}
+
+function renderCredential(c) {
+  const visLabels = ['Public', 'ZK-Locked', 'Private'];
+  const visPills = ['pill-gray', 'pill-amber', 'pill-red'];
+  const date = new Date(Number(c.issuedAt) * 1000).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const typeIcons = {
+    employment: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--text-secondary)"><path fill-rule="evenodd" clip-rule="evenodd" d="M17 3.09961C19.1539 3.09966 20.9004 4.84612 20.9004 7V17C20.9004 19.1539 19.1539 20.9003 17 20.9004H7C4.84609 20.9004 3.09961 19.1539 3.09961 17V7C3.09961 4.84609 4.84609 3.09961 7 3.09961H17ZM7 4.90039C5.8402 4.90039 4.90039 5.8402 4.90039 7V17C4.90039 18.1598 5.8402 19.0996 7 19.0996H17C18.1598 19.0996 19.0996 18.1598 19.0996 17V7C19.0996 5.84024 18.1598 4.90044 17 4.90039H7Z" fill="currentColor"/></svg>',
+    performance: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--text-secondary)"><path fill-rule="evenodd" clip-rule="evenodd" d="M18.9893 6.60743C20.5897 6.60757 21.8877 7.8926 21.8877 9.47736C21.8877 10.7416 21.0607 11.8129 19.9141 12.1955V14.257C19.914 15.8428 18.6152 17.1288 17.0137 17.1289H12.8438V20.1381C12.8437 20.6301 12.4412 21.0293 11.9443 21.0296C11.4473 21.0296 11.044 20.6302 11.0439 20.1381V16.4356C11.0441 15.8343 11.5363 15.3461 12.1436 15.3458H17.0137C17.6211 15.3457 18.1133 14.8585 18.1133 14.257V12.2129C16.9408 11.8451 16.0909 10.7598 16.0908 9.47736C16.0908 7.89251 17.3887 6.60743 18.9893 6.60743ZM18.9893 8.38953C18.3828 8.38953 17.8906 8.87684 17.8906 9.47736C17.8907 10.0778 18.3828 10.5642 18.9893 10.5642C19.5956 10.5641 20.0869 10.0777 20.0869 9.47736C20.0869 8.87693 19.5956 8.38967 18.9893 8.38953Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.89844 6.60743C6.49899 6.60747 7.79688 7.89254 7.79688 9.47736C7.79684 10.7388 6.97371 11.8078 5.83105 12.1926V14.4021C5.83105 15.0036 6.32315 15.4918 6.93066 15.4918H8.37109C8.86789 15.492 9.27038 15.8905 9.27051 16.3824C9.27051 16.8744 8.86797 17.2737 8.37109 17.2739H6.93066C5.32904 17.2739 4.03027 15.9879 4.03027 14.4021V12.2158C2.85382 11.8504 2.00004 10.7627 2 9.47736C2 7.89251 3.29784 6.60743 4.89844 6.60743ZM4.89844 8.38953C4.29196 8.38953 3.7998 8.87684 3.7998 9.47736C3.79985 10.0778 4.29198 10.5642 4.89844 10.5642C5.50485 10.5642 5.99605 10.0778 5.99609 9.47736C5.99609 8.87687 5.50488 8.38958 4.89844 8.38953Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9434 2.9707C13.5439 2.97075 14.8418 4.25581 14.8418 5.84063C14.8418 7.11413 14.0035 8.1923 12.8438 8.56745V13.0135C12.8436 13.5056 12.4403 13.9041 11.9434 13.9041C11.4466 13.9039 11.0431 13.5055 11.043 13.0135V8.56745C9.8836 8.19209 9.04496 7.11387 9.04492 5.84063C9.04492 4.25592 10.343 2.97093 11.9434 2.9707ZM11.9434 4.75281C11.3371 4.75303 10.8447 5.24026 10.8447 5.84063C10.8448 6.44097 11.3371 6.92726 11.9434 6.92749C12.5498 6.92745 13.041 6.44108 13.041 5.84063C13.041 5.24014 12.5498 4.75285 11.9434 4.75281Z" fill="currentColor"/></svg>',
+    skill: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--text-secondary)"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.711 2.52188C17.2215 2.43557 16.7547 2.76242 16.6684 3.25192L15.9899 7.1L9.97778 7.1L10.6011 3.56521C10.6874 3.07571 10.3605 2.60892 9.87102 2.5226C9.38151 2.43629 8.91472 2.76314 8.82841 3.25265L8.15002 7.1H4.00001C3.50295 7.1 3.10001 7.50294 3.10001 8C3.10001 8.49705 3.50295 8.9 4.00001 8.9H7.83263L6.7394 15.1H3.00001C2.50295 15.1 2.10001 15.5029 2.10001 16C2.10001 16.4971 2.50295 16.9 3.00001 16.9H6.42201L5.78982 20.4853C5.70351 20.9748 6.03036 21.4416 6.51987 21.5279C7.00937 21.6142 7.47617 21.2874 7.56248 20.7979L8.24978 16.9H14.2619L13.6297 20.4853C13.5434 20.9748 13.8702 21.4416 14.3597 21.5279C14.8492 21.6142 15.316 21.2874 15.4023 20.7979L16.0896 16.9H20C20.4971 16.9 20.9 16.4971 20.9 16C20.9 15.5029 20.4971 15.1 20 15.1H16.407L17.5002 8.9H21C21.4971 8.9 21.9 8.49705 21.9 8C21.9 7.50294 21.4971 7.1 21 7.1H17.8176L18.441 3.56449C18.5273 3.07499 18.2005 2.60819 17.711 2.52188ZM15.6725 8.9L14.5792 15.1L8.56717 15.1L9.6604 8.9L15.6725 8.9Z" fill="currentColor"/></svg>',
+    education: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--text-secondary)"><path d="M15.4795 15.4971C15.9765 15.4971 16.3799 15.9004 16.3799 16.3975C16.3799 16.8945 15.9765 17.2978 15.4795 17.2979H8.52051C8.02345 17.2979 7.62012 16.8945 7.62012 16.3975C7.62012 15.9004 8.02345 15.4971 8.52051 15.4971H15.4795Z" fill="currentColor"/><path d="M12.3359 11.0996C12.8329 11.0997 13.2354 11.503 13.2354 12C13.2354 12.497 12.8329 12.9003 12.3359 12.9004H8.52051C8.02345 12.9004 7.62012 12.4971 7.62012 12C7.62012 11.5029 8.02345 11.0996 8.52051 11.0996H12.3359Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M13.1719 2.09961C13.9408 2.09969 14.6789 2.40555 15.2227 2.94922L19.0508 6.77734C19.5946 7.32113 19.9003 8.05911 19.9004 8.82812V18C19.9004 20.1539 18.1539 21.9004 16 21.9004H8C5.84626 21.9002 4.09961 20.1538 4.09961 18V6C4.09961 3.84621 5.84626 2.09981 8 2.09961H13.1719ZM8 3.90039C6.84037 3.90059 5.90039 4.84032 5.90039 6V18C5.90039 19.1597 6.84037 20.0994 8 20.0996H16C17.1598 20.0996 18.0996 19.1598 18.0996 18V9.90039H15C13.3985 9.90019 12.0996 8.6015 12.0996 7V3.90039H8ZM13.9004 7C13.9004 7.60739 14.3927 8.09941 15 8.09961H17.8213C17.8068 8.08333 17.7928 8.06626 17.7773 8.05078L13.9492 4.22266C13.9335 4.20696 13.9169 4.19237 13.9004 4.17773V7Z" fill="currentColor"/></svg>'
+  };
+  const icon = typeIcons[c.credentialType] || typeIcons.employment;
+  const status = c.revoked ? 'Revoked' : 'Active';
+  const statusClass = c.revoked ? 'pill-red' : 'pill-green';
+
+  return `
+    <div class="cred-card">
+      <div class="cred-row">
+        <div class="cred-icon">${icon}</div>
+        <div class="cred-body">
+          <div class="cred-title">${c.title}</div>
+          <div class="cred-org">${c.organization} • ${c.credentialType}</div>
+        </div>
+        <span class="pill ${statusClass}">${status}</span>
+      </div>
+      <div class="cred-footer">
+        <div class="cred-stat"><div class="cred-stat-label">issued</div><div class="cred-stat-value">${date}</div></div>
+        <div class="cred-stat"><div class="cred-stat-label">visibility</div><div class="cred-stat-value" style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary);">${visLabels[c.visibility] || 'Public'}</div></div>
+        <div class="cred-stat"><div class="cred-stat-label">token</div><div class="cred-stat-value" style="font-family:var(--font-mono)">#${c.tokenId}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+// ============ VERIFY ============
+async function verifyCredential() {
+  const tokenId = document.getElementById('verify-id').value;
+  if (tokenId === '') { showToast("Enter a token ID"); return; }
+
+  const resultDiv = document.getElementById('verify-result');
+
+  if (demoMode) {
+    const c = demoCredentials[Number(tokenId)];
+    if (!c) { showToast("Credential not found"); return; }
+    document.getElementById('v-status').textContent = c.revoked ? 'Revoked' : 'Active';
+    document.getElementById('v-status').style.color = c.revoked ? 'var(--red)' : 'var(--accent)';
+    document.getElementById('v-issuer').textContent = 'Verified (demo)';
+    document.getElementById('v-rep').textContent = '100%';
+    document.getElementById('v-token').textContent = '#' + tokenId;
+    resultDiv.classList.remove('hidden');
+  } else {
+    try {
+      const res = await contract.verifyCredential(tokenId);
+      document.getElementById('v-status').textContent = res[2] ? 'Revoked' : (res[1] ? 'Expired' : 'Active');
+      document.getElementById('v-status').style.color = res[2] || res[1] ? 'var(--red)' : 'var(--accent)';
+      document.getElementById('v-issuer').textContent = res[3] ? 'Verified' : 'Unverified';
+      document.getElementById('v-rep').textContent = (Number(res[4]) / 100).toFixed(0) + '%';
+      document.getElementById('v-token').textContent = '#' + tokenId;
+      resultDiv.classList.remove('hidden');
+    } catch (e) {
+      showToast("Verification failed: " + e.message);
+    }
+  }
+}
+
+// ============ ZK PROOF ============
+function updateZKBtn() {
+  document.getElementById('zk-btn').disabled = !document.getElementById('zk-select').value;
+}
+
+async function generateZK() {
+  const btn = document.getElementById('zk-btn');
+  const val = document.getElementById('zk-select').value;
+  const labels = {
+    perf: 'Performance: Meets or exceeds "Exceeds Expectations"',
+    tenure: 'Tenure: Greater than 4 years',
+    level: 'Level: L6 or above'
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Generating proof...';
+
+  if (!demoMode && contract) {
+    try {
+      const proofHash = ethers.keccak256(ethers.toUtf8Bytes(labels[val] + Date.now()));
+      const ok = await contract.verifyZKAttribute(1, proofHash, labels[val]);
+      if (!ok) { showToast("ZK proof rejected by contract"); btn.disabled = false; btn.textContent = 'Generate ZK Proof'; return; }
+    } catch (e) {
+      showToast("ZK verification failed: " + e.message);
+      btn.disabled = false;
+      btn.textContent = 'Generate ZK Proof';
+      return;
+    }
+  } else {
+    await new Promise(r => setTimeout(r, 1500));
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Generate ZK Proof';
+  document.getElementById('zk-result').classList.remove('hidden');
+  document.getElementById('zk-attr-text').textContent = labels[val];
+  document.getElementById('zk-hash-text').textContent = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join('');
+
+  setTimeout(() => {
+    document.getElementById('final-offer').classList.remove('hidden');
+  }, 600);
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ============ INIT ============
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', (accounts) => {
+    if (accounts.length === 0) {
+      account = null;
+      document.getElementById('connect-btn').textContent = 'Connect Wallet';
+      document.getElementById('connect-btn').classList.remove('connected');
+      document.getElementById('network-pill').textContent = 'Not connected';
+    } else {
+      account = accounts[0];
+      document.getElementById('connect-btn').textContent = account.slice(0,6) + '...' + account.slice(-4);
+    }
+  });
+}
+
+// Auto-connect if previously connected
+if (localStorage.getItem('pl_connected') === 'true' && window.ethereum) {
+  connectWallet();
+}
+</script>
+
+<!-- Ethers.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+</body>
+</html>
