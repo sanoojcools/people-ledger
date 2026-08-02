@@ -1,955 +1,748 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>People Ledger -- Blockchain-Verified Credential Passport</title>
-  <meta property="og:title" content="People Ledger -- AI-Powered Blockchain Credential Passport">
-  <meta property="og:description" content="Employers sign. You own. AI matches. Zero-knowledge proves. No reference checks. No down-leveling.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://sanoojcools.github.io/people-ledger/">
-  <meta name="twitter:card" content="summary_large_image">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --bg-elevated: #111118;
-      --bg-card: #16161f;
-      --border: #232330;
-      --text: #e8e8f0;
-      --text-muted: #7a7a8f;
-      --accent: #6366f1;
-      --accent-glow: rgba(99,102,241,0.15);
-      --success: #22c55e;
-      --success-bg: rgba(34,197,94,0.08);
-      --warning: #f59e0b;
-      --warning-bg: rgba(245,158,11,0.08);
-      --danger: #ef4444;
-      --danger-bg: rgba(239,68,68,0.08);
-      --info: #3b82f6;
-      --info-bg: rgba(59,130,246,0.08);
-      --gradient-start: #6366f1;
-      --gradient-end: #a855f7;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.6;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-    header {
-      border-bottom: 1px solid var(--border);
-      background: rgba(10,10,15,0.8);
-      backdrop-filter: blur(12px);
-      position: sticky; top: 0; z-index: 100;
-    }
-    .header-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 0;
-    }
-    .logo {
-      display: flex; align-items: center; gap: 12px;
-    }
-    .logo-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-      border-radius: 10px; display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 14px; color: white;
-    }
-    .logo-text { font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
-    .logo-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-    .header-right {
-      display: flex; align-items: center; gap: 12px;
-    }
-    .view-counter {
-      font-size: 12px; color: var(--text-muted); font-weight: 500;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .view-counter-dot {
-      width: 6px; height: 6px; background: var(--success); border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .share-btn {
-      background: var(--bg-card); border: 1px solid var(--border);
-      color: var(--text-muted); padding: 6px 14px; border-radius: 8px;
-      font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .share-btn:hover { border-color: var(--accent); color: var(--text); }
-    .wallet-btn {
-      background: var(--bg-card); border: 1px solid var(--border);
-      color: var(--text); padding: 8px 18px; border-radius: 10px;
-      font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .wallet-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
-    .wallet-btn.connected {
-      background: var(--success-bg); border-color: rgba(34,197,94,0.3); color: var(--success);
-    }
-    .hero {
-      padding: 48px 0 32px;
-      text-align: center;
-    }
-    .hero h1 {
-      font-size: 40px; font-weight: 800; letter-spacing: -1px;
-      background: linear-gradient(135deg, var(--text), #a5a5c0);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-    }
-    .hero p {
-      color: var(--text-muted); font-size: 17px; max-width: 600px;
-      margin: 0 auto 24px;
-    }
-    .story-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--accent-glow); border: 1px solid rgba(99,102,241,0.2);
-      padding: 8px 16px; border-radius: 100px; font-size: 12px; font-weight: 600;
-      color: var(--accent); margin-bottom: 8px;
-    }
-    .tabs {
-      display: flex; gap: 4px; padding: 4px;
-      background: var(--bg-elevated); border: 1px solid var(--border);
-      border-radius: 14px; width: fit-content; margin: 0 auto 32px;
-      flex-wrap: wrap; justify-content: center;
-    }
-    .tab {
-      padding: 10px 18px; border-radius: 10px; border: none;
-      background: transparent; color: var(--text-muted); font-family: inherit;
-      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .tab:hover { color: var(--text); }
-    .tab.active {
-      background: var(--bg-card); color: var(--text);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 28px; margin-bottom: 20px;
-    }
-    .card-title {
-      font-size: 18px; font-weight: 700; margin-bottom: 6px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .card-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
-    .form-group { margin-bottom: 16px; }
-    label {
-      display: block; font-size: 12px; font-weight: 600;
-      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    input, select, textarea {
-      width: 100%; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 14px; color: var(--text);
-      font-family: inherit; font-size: 14px; outline: none;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-    textarea { min-height: 120px; resize: vertical; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-      color: white; border: none; padding: 12px 24px; border-radius: 10px;
-      font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-    .btn-secondary {
-      background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text);
-    }
-    .btn-secondary:hover { background: var(--border); box-shadow: none; }
-    .btn-success { background: var(--success); }
-    .btn-success:hover { box-shadow: 0 8px 24px rgba(34,197,94,0.3); }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .badge-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
-    .badge-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
-    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
-    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
-    .credential-card {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 14px; padding: 20px; margin-bottom: 12px;
-      transition: all 0.2s;
-    }
-    .credential-card:hover { border-color: var(--accent); }
-    .credential-header {
-      display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;
-    }
-    .credential-title { font-weight: 700; font-size: 15px; }
-    .credential-meta { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
-    .credential-body { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .credential-field { font-size: 13px; }
-    .credential-field-label { color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
-    .credential-field-value { color: var(--text); font-weight: 500; }
-    .result-box {
-      background: var(--success-bg); border: 1px solid rgba(34,197,94,0.2);
-      border-radius: 12px; padding: 20px; margin-top: 20px;
-    }
-    .result-box.error { background: var(--danger-bg); border-color: rgba(239,68,68,0.2); }
-    .result-box.info { background: var(--info-bg); border-color: rgba(59,130,246,0.2); }
-    .result-title { font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .result-item { font-size: 13px; }
-    .result-item-label { color: var(--text-muted); font-size: 11px; }
-    .result-item-value { font-weight: 600; }
-    .typing-cursor::after {
-      content: "|"; animation: blink 1s infinite; color: var(--accent);
-    }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-    .agent-log {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 12px; padding: 16px; font-family: 'SF Mono', monospace;
-      font-size: 12px; line-height: 1.8; color: var(--text-muted);
-      max-height: 300px; overflow-y: auto; margin: 16px 0;
-    }
-    .agent-log .log-line { margin-bottom: 4px; }
-    .agent-log .log-cmd { color: var(--accent); }
-    .agent-log .log-ok { color: var(--success); }
-    .agent-log .log-warn { color: var(--warning); }
-    .agent-log .log-info { color: var(--info); }
-    .match-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    .match-table th {
-      text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600;
-      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--border);
-    }
-    .match-table td {
-      padding: 14px 12px; font-size: 13px; border-bottom: 1px solid var(--border);
-    }
-    .match-table tr:hover td { background: var(--bg-elevated); }
-    .match-status { display: flex; align-items: center; gap: 6px; }
-    .match-status-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .match-status-dot.ok { background: var(--success); }
-    .match-status-dot.warn { background: var(--warning); }
-    .match-status-dot.miss { background: var(--danger); }
-    .offer-card {
-      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1));
-      border: 1px solid rgba(99,102,241,0.3); border-radius: 16px;
-      padding: 28px; text-align: center; margin-top: 24px;
-    }
-    .offer-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-    .offer-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
-    .offer-details {
-      display: flex; justify-content: center; gap: 32px; margin-top: 20px;
-    }
-    .offer-detail { text-align: center; }
-    .offer-detail-value { font-size: 24px; font-weight: 800; color: var(--success); }
-    .offer-detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-    .hidden { display: none !important; }
-    .fade-in { animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .extracted-field {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .extracted-field-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-    .extracted-field-value { font-size: 14px; font-weight: 600; color: var(--text); }
-    .extracted-field-value.confidence-high { color: var(--success); }
-    .extracted-field-value.confidence-med { color: var(--warning); }
-    .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 20px;
-      font-size: 13px; font-weight: 600; color: var(--success);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transform: translateY(100px); opacity: 0;
-      transition: all 0.3s ease; z-index: 1000;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    @media (max-width: 768px) {
-      .grid-2, .credential-body, .result-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 28px; }
-      .tabs { overflow-x: auto; width: 100%; }
-      .offer-details { flex-direction: column; gap: 16px; }
-      .header-right { display: none; }
-    }
-  </style>
-<base target="_blank">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People Ledger | Blockchain Credential Protocol</title>
+<meta property="og:title" content="People Ledger — Decentralized Professional Identity">
+<meta property="og:description" content="Employers cryptographically sign credentials. Employees own them. AI agents match encrypted data to jobs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sanoojcools.github.io/people-ledger">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e8e8f0; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.glass { background: rgba(17,17,24,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
+.glow-purple { box-shadow: 0 0 30px rgba(99,102,241,0.15); }
+.glow-green { box-shadow: 0 0 30px rgba(34,197,94,0.15); }
+.tab-active { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; }
+.tab-inactive { background: rgba(255,255,255,0.04); color: #7a7a8f; border: 1px solid rgba(255,255,255,0.06); }
+.tab-inactive:hover { background: rgba(255,255,255,0.08); color: #e8e8f0; }
+.code-block { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 8px; padding: 16px; font-size: 12px; overflow-x: auto; }
+.animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+.terminal-line { opacity: 0; animation: fadeIn 0.3s forwards; }
+@keyframes fadeIn { to { opacity: 1; } }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+</style>
 </head>
-<body>
+<body class="min-h-screen">
 
-<div class="toast" id="toast">Link copied to clipboard!</div>
+<!-- Top Bar -->
+<div class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+<div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-sm">PL</div>
+<span class="font-semibold text-sm">People Ledger</span>
+<span class="text-xs text-zinc-500 hidden sm:inline">Sepolia Testnet</span>
+</div>
+<div class="flex items-center gap-3">
+<span id="networkBadge" class="text-xs px-2 py-1 rounded-full bg-zinc-800 text-zinc-400 hidden">Sepolia</span>
+<button id="connectBtn" onclick="connectWallet()" class="text-xs px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-all">
+Connect Wallet
+</button>
+<span id="walletAddress" class="text-xs mono text-zinc-400 hidden"></span>
+</div>
+</div>
+</div>
 
-<header>
-  <div class="container">
-    <div class="header-inner">
-      <div class="logo">
-        <div class="logo-icon">PL</div>
-        <div>
-          <div class="logo-text">People Ledger</div>
-          <div class="logo-sub">Blockchain-Verified Credential Passport</div>
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="view-counter">
-          <div class="view-counter-dot"></div>
-          <span id="viewCount">1,247 people viewing Sarahs story</span>
-        </div>
-        <button class="share-btn" id="shareBtn">Share Demo</button>
-        <button class="wallet-btn" id="connectBtn">Connect Wallet</button>
-      </div>
-    </div>
-  </div>
-</header>
+<!-- Hero -->
+<div class="pt-24 pb-8 px-4">
+<div class="max-w-6xl mx-auto">
+<div class="text-center mb-10">
+<h1 class="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+Professional Identity Protocol
+</h1>
+<p class="text-zinc-400 text-sm max-w-xl mx-auto leading-relaxed">
+Employers cryptographically sign credentials. Employees own them forever.
+AI agents match encrypted data to jobs using zero-knowledge proofs.
+</p>
+<div class="flex items-center justify-center gap-4 mt-4 text-xs text-zinc-500">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>Sepolia Live</span>
+<span id="contractBadge" class="mono">Contract: 0xe92...275b</span>
+<span id="txCountBadge" class="hidden">Credentials: <span id="totalCreds">0</span></span>
+</div>
+</div>
 
-<div class="container">
-  <div class="hero">
-    <div class="story-badge">Sarahs Story</div>
-    <h1>Your Work History, Cryptographically Yours</h1>
-    <p>Employers sign. You own. AI matches. Zero-knowledge proves. No reference checks. No down-leveling. No PDFs.</p>
-  </div>
+<!-- Tabs -->
+<div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide pb-2">
+<button onclick="switchTab('issue')" id="tab-issue" class="tab-active px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Issue</button>
+<button onclick="switchTab('wallet')" id="tab-wallet" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Wallet</button>
+<button onclick="switchTab('verify')" id="tab-verify" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Verify</button>
+<button onclick="switchTab('zk')" id="tab-zk" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">ZK Proof</button>
+<button onclick="switchTab('aimatch')" id="tab-aimatch" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">AI Match</button>
+<button onclick="switchTab('aiextract')" id="tab-aiextract" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">AI Extract</button>
+<button onclick="switchTab('protocol')" id="tab-protocol" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Protocol</button>
+</div>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="issue">Issue</button>
-    <button class="tab" data-tab="wallet">Wallet</button>
-    <button class="tab" data-tab="verify">Verify</button>
-    <button class="tab" data-tab="zk">ZK Proof</button>
-    <button class="tab" data-tab="aimatch">AI Match</button>
-    <button class="tab" data-tab="extract">AI Extract</button>
-  </div>
+<!-- Issue Tab -->
+<div id="panel-issue" class="tab-panel">
+<div class="glass rounded-2xl p-6 md:p-8 glow-purple">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">Issue Credential</h2>
+<p class="text-xs text-zinc-500">Employer signs and mints a verified credential on-chain</p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-4 mb-4">
+<div>
+<label class="text-xs text-zinc-500 mb-1 block">Employee Address</label>
+<input id="issueEmployee" type="text" placeholder="0x..." class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500">
+</div>
+<div>
+<label class="text-xs text-zinc-500 mb-1 block">Role / Title</label>
+<input id="issueRole" type="text" placeholder="Senior Engineer" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500">
+</div>
+<div>
+<label class="text-xs text-zinc-500 mb-1 block">Level (1-10)</label>
+<input id="issueLevel" type="number" min="1" max="10" value="6" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+</div>
+<div>
+<label class="text-xs text-zinc-500 mb-1 block">Credential Hash (bytes32)</label>
+<input id="issueHash" type="text" placeholder="0x..." class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500">
+</div>
+</div>
+<div class="mb-4">
+<label class="text-xs text-zinc-500 mb-1 block">Performance Data (off-chain encrypted)</label>
+<textarea id="issueData" rows="3" placeholder='{"rating":"Exceeds Expectations","tenure":4.5,"skills":["Distributed Systems","Python"]}' class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500 mono"></textarea>
+</div>
+<div class="flex gap-3">
+<button onclick="registerIssuer()" id="btnRegister" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium transition-all border border-zinc-700">
+Register as Issuer
+</button>
+<button onclick="mintCredential()" id="btnMint" class="px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-medium transition-all">
+Mint Credential
+</button>
+</div>
+<div id="issueResult" class="mt-4 hidden"></div>
+</div>
+</div>
 
-  <div id="issue" class="tab-content active">
-    <div class="card">
-      <div class="card-title">Issue Credential</div>
-      <div class="card-desc">AWS HR mints Sarahs employment credential. Cryptographically signed. She owns it forever.</div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Employee Wallet Address</label>
-          <input type="text" id="issueAddress" value="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" />
-        </div>
-        <div class="form-group">
-          <label>Credential Type</label>
-          <select id="issueType">
-            <option value="employment">Employment</option>
-            <option value="performance">Performance Review</option>
-            <option value="skill">Skill Certification</option>
-            <option value="education">Education</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Title / Role</label>
-          <input type="text" id="issueTitle" value="Senior Software Engineer" />
-        </div>
-        <div class="form-group">
-          <label>Level</label>
-          <input type="text" id="issueLevel" value="L6" />
-        </div>
-        <div class="form-group">
-          <label>Start Date</label>
-          <input type="date" id="issueStart" value="2020-01-15" />
-        </div>
-        <div class="form-group">
-          <label>End Date (leave blank if current)</label>
-          <input type="date" id="issueEnd" />
-        </div>
-        <div class="form-group">
-          <label>Performance Rating</label>
-          <select id="issueRating">
-            <option value="Exceeds Expectations">Exceeds Expectations</option>
-            <option value="Meets Expectations">Meets Expectations</option>
-            <option value="Needs Improvement">Needs Improvement</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Visibility</label>
-          <select id="issueVisibility">
-            <option value="public">Public</option>
-            <option value="zk">ZK-Verifiable</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" style="margin-top:12px;">
-        <label>Skills (comma separated)</label>
-        <input type="text" id="issueSkills" value="Distributed Systems, Billing, Python, AWS" />
-      </div>
-      <button class="btn" id="mintBtn">Mint Credential</button>
-      <div id="mintResult"></div>
-    </div>
-  </div>
+<!-- Wallet Tab -->
+<div id="panel-wallet" class="tab-panel hidden">
+<div class="glass rounded-2xl p-6 md:p-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">Credential Passport</h2>
+<p class="text-xs text-zinc-500">Your owned credentials and ZK-locked reviews</p>
+</div>
+</div>
+<div id="walletCredentials" class="space-y-4">
+<!-- Demo credentials -->
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-5">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="text-2xl">+</span>
+<div>
+<div class="font-medium text-sm">Employment Credential</div>
+<div class="text-xs text-zinc-500">Amazon Web Services</div>
+</div>
+</div>
+<span class="px-2 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium border border-green-500/20">Active</span>
+</div>
+<div class="grid grid-cols-2 gap-3 text-xs mb-3">
+<div class="bg-zinc-800/50 rounded-lg p-2">
+<div class="text-zinc-500">Role</div>
+<div class="font-medium">Senior Engineer</div>
+</div>
+<div class="bg-zinc-800/50 rounded-lg p-2">
+<div class="text-zinc-500">Level</div>
+<div class="font-medium">L6</div>
+</div>
+<div class="bg-zinc-800/50 rounded-lg p-2">
+<div class="text-zinc-500">Issued</div>
+<div class="font-medium">Jan 2024</div>
+</div>
+<div class="bg-zinc-800/50 rounded-lg p-2">
+<div class="text-zinc-500">Hash</div>
+<div class="font-medium mono truncate">0x7a3f...9e2d</div>
+</div>
+</div>
+<div class="text-xs text-zinc-500 mono">Issuer: 0xf39F...92266</div>
+</div>
 
-  <div id="wallet" class="tab-content">
-    <div class="card">
-      <div class="card-title">Sarahs Credential Passport</div>
-      <div class="card-desc">She sees her ratings. The world sees locked boxes. She controls every attribute.</div>
-      <div id="walletCredentials"></div>
-    </div>
-  </div>
+<div class="bg-zinc-900/50 border border-orange-500/20 rounded-xl p-5">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="text-2xl">+</span>
+<div>
+<div class="font-medium text-sm">Performance Review</div>
+<div class="text-xs text-zinc-500">H1 2024 Cycle</div>
+</div>
+</div>
+<span class="px-2 py-1 rounded-full bg-orange-500/10 text-orange-400 text-xs font-medium border border-orange-500/20">ZK-Locked</span>
+</div>
+<div class="bg-zinc-800/50 rounded-lg p-3 mb-3">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs text-zinc-500">Rating</span>
+<span class="text-xs font-medium text-orange-400">Encrypted</span>
+</div>
+<div class="w-full bg-zinc-700 rounded-full h-2">
+<div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" style="width: 92%"></div>
+</div>
+<div class="flex justify-between text-xs mt-1 text-zinc-500">
+<span>Threshold: Exceeds</span>
+<span class="text-orange-400">92% confidence</span>
+</div>
+</div>
+<div class="text-xs text-zinc-500">Zero-knowledge proof available for verification</div>
+</div>
+</div>
+</div>
+</div>
 
-  <div id="verify" class="tab-content">
-    <div class="card">
-      <div class="card-title">Verify Credential</div>
-      <div class="card-desc">Stripe checks Sarahs credential instantly. No emails. No phone calls. Just cryptographic truth.</div>
-      <div class="form-group">
-        <label>Credential Token ID</label>
-        <input type="text" id="verifyTokenId" value="0" placeholder="Enter token ID (e.g. 0)" />
-      </div>
-      <button class="btn" id="verifyBtn">Verify on Chain</button>
-      <div id="verifyResult"></div>
-    </div>
-  </div>
+<!-- Verify Tab -->
+<div id="panel-verify" class="tab-panel hidden">
+<div class="glass rounded-2xl p-6 md:p-8 glow-green">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">Verify Credential</h2>
+<p class="text-xs text-zinc-500">Instant on-chain verification without reference calls</p>
+</div>
+</div>
+<div class="flex gap-3 mb-6">
+<input id="verifyHash" type="text" placeholder="Enter credential hash (0x...)" class="flex-1 bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-green-500 mono">
+<button onclick="verifyOnChain()" id="btnVerify" class="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white text-sm font-medium transition-all whitespace-nowrap">
+Verify
+</button>
+</div>
+<div id="verifyResult" class="hidden"></div>
+</div>
+</div>
 
-  <div id="zk" class="tab-content">
-    <div class="card">
-      <div class="card-title">Zero-Knowledge Proof</div>
-      <div class="card-desc">Sarah proves she meets the threshold. Stripe sees the proof. Never sees the number.</div>
-      <div class="form-group">
-        <label>Select Attribute to Prove</label>
-        <select id="zkAttribute">
-          <option value="performance">Performance: Meets or exceeds Exceeds Expectations</option>
-          <option value="tenure">Tenure: 4+ years at current level</option>
-          <option value="level">Level: L6 or higher</option>
-          <option value="skill">Skills: Distributed Systems experience</option>
-        </select>
-      </div>
-      <button class="btn" id="zkBtn">Generate ZK Proof</button>
-      <div id="zkResult"></div>
-    </div>
-  </div>
+<!-- ZK Proof Tab -->
+<div id="panel-zk" class="tab-panel hidden">
+<div class="glass rounded-2xl p-6 md:p-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">Zero-Knowledge Proof</h2>
+<p class="text-xs text-zinc-500">Prove you meet requirements without revealing private data</p>
+</div>
+</div>
+<div class="space-y-4 mb-6">
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-pink-500/30 transition-all" onclick="selectZKProof('performance')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-xs">01</div>
+<div>
+<div class="text-sm font-medium">Performance Threshold</div>
+<div class="text-xs text-zinc-500">Prove rating >= "Exceeds Expectations"</div>
+</div>
+</div>
+<div id="zk-check-performance" class="w-5 h-5 rounded border border-zinc-600"></div>
+</div>
+</div>
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-pink-500/30 transition-all" onclick="selectZKProof('tenure')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-xs">02</div>
+<div>
+<div class="text-sm font-medium">Tenure Proof</div>
+<div class="text-xs text-zinc-500">Prove tenure >= 4 years</div>
+</div>
+</div>
+<div id="zk-check-tenure" class="w-5 h-5 rounded border border-zinc-600"></div>
+</div>
+</div>
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-pink-500/30 transition-all" onclick="selectZKProof('level')">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-xs">03</div>
+<div>
+<div class="text-sm font-medium">Level Threshold</div>
+<div class="text-xs text-zinc-500">Prove level >= L6</div>
+</div>
+</div>
+<div id="zk-check-level" class="w-5 h-5 rounded border border-zinc-600"></div>
+</div>
+</div>
+</div>
+<button onclick="generateZKProof()" id="btnZK" class="w-full py-3 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-sm font-medium transition-all">
+Generate ZK Proof Bundle
+</button>
+<div id="zkResult" class="mt-4 hidden"></div>
+</div>
+</div>
 
-  <div id="aimatch" class="tab-content">
-    <div class="card">
-      <div class="card-title">AI Agent -- Job Matching</div>
-      <div class="card-desc">Stripe posts a job. The AI agent reads it, extracts requirements, matches Sarahs encrypted credentials, and auto-generates proof requests.</div>
-      <div class="form-group">
-        <label>Job Description</label>
-        <textarea id="jdInput" placeholder="Paste a job description here...">Stripe is hiring a Staff Software Engineer (L7) for our new Payments Infrastructure team.
+<!-- AI Match Tab -->
+<div id="panel-aimatch" class="tab-panel hidden">
+<div class="glass rounded-2xl p-6 md:p-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">AI Job Matcher</h2>
+<p class="text-xs text-zinc-500">Paste a job description. Our AI agent parses requirements and matches your credentials.</p>
+</div>
+</div>
+<div class="mb-4">
+<label class="text-xs text-zinc-500 mb-1 block">Job Description</label>
+<textarea id="jobDescription" rows="8" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500 mono" placeholder="Paste job description here..."></textarea>
+</div>
+<div class="flex gap-3 mb-4">
+<button onclick="loadStripeJD()" class="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-400 transition-all border border-zinc-700">Load Stripe Example</button>
+<button onclick="runAIMatch()" id="btnAIMatch" class="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-medium transition-all">
+Run AI Agent
+</button>
+</div>
+<div id="aiMatchTerminal" class="hidden mb-4 bg-black/50 rounded-lg p-4 mono text-xs space-y-1 max-h-48 overflow-y-auto"></div>
+<div id="aiMatchResult" class="hidden"></div>
+</div>
+</div>
 
-Requirements:
-- 5+ years experience in distributed systems
-- Track record of Exceeds Expectations performance
-- L6+ equivalent or higher
-- Experience with billing, payments, or financial systems
-- Strong Python and AWS background
-- Built systems processing $10M+ daily volume
+<!-- AI Extract Tab -->
+<div id="panel-aiextract" class="tab-panel hidden">
+<div class="glass rounded-2xl p-6 md:p-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">AI Credential Extractor</h2>
+<p class="text-xs text-zinc-500">Paste a raw performance review email. AI extracts structured data and auto-fills the mint form.</p>
+</div>
+</div>
+<div class="mb-4">
+<label class="text-xs text-zinc-500 mb-1 block">Raw Performance Review / Email</label>
+<textarea id="reviewText" rows="8" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 mono" placeholder="Paste raw review text here..."></textarea>
+</div>
+<div class="flex gap-3 mb-4">
+<button onclick="loadAWSReview()" class="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-400 transition-all border border-zinc-700">Load AWS Example</button>
+<button onclick="runAIExtract()" id="btnAIExtract" class="px-6 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-xs font-medium transition-all">
+Run Extraction Agent
+</button>
+</div>
+<div id="aiExtractTerminal" class="hidden mb-4 bg-black/50 rounded-lg p-4 mono text-xs space-y-1 max-h-48 overflow-y-auto"></div>
+<div id="aiExtractResult" class="hidden"></div>
+</div>
+</div>
 
-We value candidates who can demonstrate ownership of high-scale systems and have been rated top-performer in their last two review cycles.</textarea>
-      </div>
-      <button class="btn" id="aiRunBtn"><span>Run AI Agent</span></button>
-      <div id="agentLog" class="agent-log hidden"></div>
-      <div id="matchResults" class="hidden">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:24px;">
-          <div>
-            <div style="font-size:16px; font-weight:700;">Requirement Analysis</div>
-            <div style="font-size:13px; color:var(--text-muted);">AI parsed 6 requirements from the job description</div>
-          </div>
-          <span class="badge badge-success" id="matchScoreBadge">6/6 Matched</span>
-        </div>
-        <table class="match-table">
-          <thead>
-            <tr><th>Requirement</th><th>Extracted Value</th><th>Sarahs Credential</th><th>Status</th><th>Proof Type</th></tr>
-          </thead>
-          <tbody id="matchTableBody"></tbody>
-        </table>
-        <button class="btn btn-success" id="genAllBtn" style="margin-top:16px;"><span>Generate All Proofs</span></button>
-        <div id="allProofResult"></div>
-      </div>
-    </div>
-  </div>
+<!-- Protocol Tab -->
+<div id="panel-protocol" class="tab-panel hidden">
+<div class="glass rounded-2xl p-6 md:p-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-xl bg-zinc-500/20 flex items-center justify-center text-lg">+</div>
+<div>
+<h2 class="text-lg font-semibold">Protocol Stats</h2>
+<p class="text-xs text-zinc-500">Live on-chain data from Sepolia testnet</p>
+</div>
+</div>
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 text-center">
+<div class="text-2xl font-bold text-indigo-400" id="statTotal">-</div>
+<div class="text-xs text-zinc-500 mt-1">Total Credentials</div>
+</div>
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 text-center">
+<div class="text-2xl font-bold text-green-400" id="statIssuers">-</div>
+<div class="text-xs text-zinc-500 mt-1">Registered Issuers</div>
+</div>
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 text-center">
+<div class="text-2xl font-bold text-purple-400" id="statNetwork">Sepolia</div>
+<div class="text-xs text-zinc-500 mt-1">Network</div>
+</div>
+</div>
+<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 mb-4">
+<div class="text-xs text-zinc-500 mb-2">Contract Address</div>
+<div class="flex items-center gap-2">
+<code class="mono text-sm text-indigo-400">0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b</code>
+<button onclick="copyToClipboard('0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b')" class="text-xs px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400">Copy</button>
+</div>
+</div>
+<div class="flex gap-3">
+<a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b" target="_blank" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-all border border-zinc-700">View on Etherscan</a>
+<a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b#code" target="_blank" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-all border border-zinc-700">View Source</a>
+</div>
+</div>
+</div>
 
-  <div id="extract" class="tab-content">
-    <div class="card">
-      <div class="card-title">AI Extractor -- Performance Review to Credential</div>
-      <div class="card-desc">Sarahs manager forwards her review email. The AI agent reads unstructured text, extracts structured fields, and auto-fills the mint form. No manual data entry.</div>
-      <div class="form-group">
-        <label>Paste Performance Review Email or Text</label>
-        <textarea id="extractInput" placeholder="Paste a raw performance review, email, or HR document here...">From: David Park &lt;david.park@aws.amazon.com&gt;
-To: HR-Portal &lt;hr-portal@aws.amazon.com&gt;
-Subject: H1 2024 Performance Review -- Sarah Chen
-Date: June 28, 2024
-
----
-
-Employee: Sarah Chen
-Employee ID: SC-78234
-Manager: David Park, Sr. Engineering Manager
-Department: AWS Billing and Payments
-
-PERFORMANCE SUMMARY -- H1 2024
-
-Sarah continues to operate at a Staff Engineer level (L6) despite her current title. She led the redesign of the real-time billing pipeline that now processes $42M in daily transactions with 99.999% uptime.
-
-Key Achievements:
-- Reduced latency by 40% on the invoice generation path
-- Mentored 3 junior engineers to L4 promotion readiness
-- Authored 2 internal RFCs adopted org-wide
-- On-call rotation: zero Sev1 incidents during her primary
-
-Overall Rating: Exceeds Expectations (5th consecutive cycle)
-
-Recommended Level: L7 (Staff Engineer) effective Q3 2024
-Tenure: 4 years 6 months (joined Jan 2020)
-
-Skills demonstrated: Distributed Systems, Python, AWS (Lambda, DynamoDB, Kinesis), System Design, Technical Writing, Mentorship
-
-Manager Notes:
-Sarah is ready for the next level. Her technical depth and ownership of the billing platform make her one of the strongest engineers on the team. I recommend immediate promotion to L7.
-
---
-David Park
-Sr. Engineering Manager, AWS Billing</textarea>
-      </div>
-      <button class="btn" id="extractBtn"><span>Run Extraction Agent</span></button>
-      <div id="extractLog" class="agent-log hidden"></div>
-      <div id="extractResults" class="hidden">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:24px; margin-bottom:16px;">
-          <div>
-            <div style="font-size:16px; font-weight:700;">Extracted Fields</div>
-            <div style="font-size:13px; color:var(--text-muted);">AI extracted 8 structured fields from unstructured text</div>
-          </div>
-          <span class="badge badge-success">Confidence: 94%</span>
-        </div>
-        <div id="extractedFields"></div>
-        <button class="btn btn-success" id="populateBtn" style="margin-top:16px;"><span>Populate Issue Form and Mint</span></button>
-        <div id="populateResult"></div>
-      </div>
-    </div>
-  </div>
-
+</div>
 </div>
 
 <script>
-var walletConnected = false;
-var walletAddress = '';
-var credentials = [];
-var matchData = [];
-var extractedData = {};
+// ========== CONFIG ==========
+const CONTRACT_ADDRESS = "0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b";
+const SEPOLIA_CHAIN_ID = "0xaa36a7";
+const API_BASE_URL = localStorage.getItem('pl_api_url') || '';
 
-var sarahCredentials = [
-  {
-    id: 0, type: 'employment', title: 'Senior Software Engineer', level: 'L6',
-    company: 'Amazon Web Services', startDate: '2020-01-15', endDate: null,
-    rating: 'Exceeds Expectations', visibility: 'public',
-    skills: ['Distributed Systems', 'Billing', 'Python', 'AWS'],
-    issuer: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-    issuerName: 'Amazon Web Services', reputation: 100, status: 'active', dataHash: '0x7a3f...e9d2'
-  },
-  {
-    id: 1, type: 'performance', title: 'H1 2024 Performance Review', level: 'L6',
-    company: 'Amazon Web Services', startDate: '2024-01-01', endDate: '2024-06-30',
-    rating: 'Exceeds Expectations', visibility: 'zk',
-    skills: ['Distributed Systems', 'Billing', 'Python', 'AWS', 'Leadership'],
-    issuer: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-    issuerName: 'Sarahs Manager, AWS', reputation: 98, status: 'active', dataHash: '0x9b2c...f1a4'
-  },
-  {
-    id: 2, type: 'skill', title: 'AWS Solutions Architect -- Professional', level: 'Professional',
-    company: 'Amazon Web Services', startDate: '2022-03-10', endDate: '2025-03-10',
-    rating: 'Certified', visibility: 'public',
-    skills: ['AWS', 'Architecture', 'Distributed Systems'],
-    issuer: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-    issuerName: 'AWS Certification Board', reputation: 100, status: 'active', dataHash: '0x4d5e...b2c3'
-  }
+const ABI = [
+  "function registerIssuer(string memory name) external",
+  "function issueCredential(address employee, string memory role, uint8 level, bytes32 hash) external",
+  "function verifyCredential(bytes32 hash) external view returns (bool valid, address issuer, uint256 issuedAt)",
+  "function revokeCredential(bytes32 hash, string memory reason) external",
+  "function getEmployeeCredentials(address employee) external view returns (bytes32[] memory)",
+  "function isIssuer(address account) external view returns (bool)",
+  "function totalCredentials() external view returns (uint256)",
+  "function issuers(address) external view returns (bool)",
+  "event CredentialIssued(bytes32 indexed hash, address indexed issuer, address indexed employee)",
+  "event IssuerRegistered(address indexed issuer, string name)"
 ];
 
-document.addEventListener('DOMContentLoaded', function() {
-  credentials = sarahCredentials.slice();
-  renderWallet();
-  bindEvents();
-  animateViewCount();
-});
+let provider, signer, contract, userAddress;
+let zkSelections = new Set();
 
-function animateViewCount() {
-  var el = document.getElementById('viewCount');
-  var count = 1247;
-  var target = 1247 + Math.floor(Math.random() * 50);
-  var interval = setInterval(function() {
-    count++;
-    el.textContent = count.toLocaleString() + ' people viewing Sarahs story';
-    if (count >= target) clearInterval(interval);
-  }, 3000);
-}
-
-function bindEvents() {
-  document.getElementById('connectBtn').addEventListener('click', toggleWallet);
-  document.getElementById('mintBtn').addEventListener('click', mintCredential);
-  document.getElementById('verifyBtn').addEventListener('click', verifyCredential);
-  document.getElementById('zkBtn').addEventListener('click', generateZKProof);
-  document.getElementById('aiRunBtn').addEventListener('click', runAIMatch);
-  document.getElementById('genAllBtn').addEventListener('click', generateAllProofs);
-  document.getElementById('extractBtn').addEventListener('click', runExtraction);
-  document.getElementById('populateBtn').addEventListener('click', populateAndMint);
-  document.getElementById('shareBtn').addEventListener('click', shareDemo);
-
-  document.querySelectorAll('.tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      var tabId = this.getAttribute('data-tab');
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-      this.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
-    });
-  });
-}
-
-function shareDemo() {
-  var url = 'https://sanoojcools.github.io/people-ledger/';
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(function() {
-      showToast('Link copied to clipboard!');
-    });
-  } else {
-    showToast('URL: ' + url);
-  }
-}
-
-function showToast(msg) {
-  var toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(function() { toast.classList.remove('show'); }, 2500);
-}
-
-function toggleWallet() {
-  var btn = document.getElementById('connectBtn');
-  if (!walletConnected) {
-    walletAddress = '0xf39F...2266';
-    walletConnected = true;
-    btn.textContent = '0xf39F...2266';
-    btn.classList.add('connected');
-  } else {
-    walletConnected = false;
-    walletAddress = '';
-    btn.textContent = 'Connect Wallet';
-    btn.classList.remove('connected');
-  }
-}
-
-function mintCredential() {
-  var btn = document.getElementById('mintBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="typing-cursor">Minting on-chain</span>';
-  setTimeout(function() {
-    var newCred = {
-      id: credentials.length,
-      type: document.getElementById('issueType').value,
-      title: document.getElementById('issueTitle').value,
-      level: document.getElementById('issueLevel').value,
-      company: 'Amazon Web Services',
-      startDate: document.getElementById('issueStart').value,
-      endDate: document.getElementById('issueEnd').value || null,
-      rating: document.getElementById('issueRating').value,
-      visibility: document.getElementById('issueVisibility').value,
-      skills: document.getElementById('issueSkills').value.split(',').map(function(s) { return s.trim(); }),
-      issuer: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-      issuerName: 'Amazon Web Services',
-      reputation: 100,
-      status: 'active',
-      dataHash: '0x' + Math.random().toString(16).slice(2, 10) + '...' + Math.random().toString(16).slice(2, 6)
-    };
-    credentials.push(newCred);
-    renderWallet();
-    document.getElementById('mintResult').innerHTML =
-      '<div class="result-box fade-in">' +
-        '<div class="result-title">Credential Minted Successfully</div>' +
-        '<div class="result-grid">' +
-          '<div class="result-item"><div class="result-item-label">Token ID</div><div class="result-item-value">#' + newCred.id + '</div></div>' +
-          '<div class="result-item"><div class="result-item-label">Type</div><div class="result-item-value">' + newCred.type + '</div></div>' +
-          '<div class="result-item"><div class="result-item-label">Transaction</div><div class="result-item-value" style="font-family:monospace; font-size:11px;">0x' + Math.random().toString(16).slice(2, 66) + '</div></div>' +
-          '<div class="result-item"><div class="result-item-label">Gas Used</div><div class="result-item-value">42,317</div></div>' +
-        '</div>' +
-      '</div>';
-    btn.disabled = false;
-    btn.innerHTML = 'Mint Credential';
-  }, 1200);
-}
-
-function renderWallet() {
-  var container = document.getElementById('walletCredentials');
-  if (!credentials.length) {
-    container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:40px;">No credentials yet. Mint one in the Issue tab.</p>';
+// ========== WALLET ==========
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("MetaMask not detected. Install from metamask.io");
     return;
   }
-  container.innerHTML = credentials.map(function(c) {
-    var visBadge = c.visibility === 'public' ? '<span class="badge badge-success">Public</span>' :
-                   c.visibility === 'zk' ? '<span class="badge badge-warning">ZK-Locked</span>' :
-                   '<span class="badge badge-danger">Private</span>';
-    var statusBadge = c.status === 'active' ? '<span class="badge badge-success">Active</span>' :
-                      '<span class="badge badge-danger">Revoked</span>';
-    var ratingDisplay = c.rating;
-    if (c.visibility === 'zk' || c.visibility === 'private') {
-      ratingDisplay = '<span style="color:var(--text-muted);">Encrypted</span>';
+  try {
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const network = await provider.getNetwork();
+    if (network.chainId !== 11155111n) {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: SEPOLIA_CHAIN_ID }]
+      });
+      provider = new ethers.BrowserProvider(window.ethereum);
     }
-    return '<div class="credential-card fade-in">' +
-      '<div class="credential-header">' +
-        '<div><div class="credential-title">' + c.title + '</div><div class="credential-meta">' + c.company + ' &bull; ' + c.type + ' credential</div></div>' +
-        '<div style="display:flex; gap:6px;">' + visBadge + statusBadge + '</div>' +
-      '</div>' +
-      '<div class="credential-body">' +
-        '<div class="credential-field"><div class="credential-field-label">Level</div><div class="credential-field-value">' + c.level + '</div></div>' +
-        '<div class="credential-field"><div class="credential-field-label">Rating</div><div class="credential-field-value">' + ratingDisplay + '</div></div>' +
-        '<div class="credential-field"><div class="credential-field-label">Period</div><div class="credential-field-value">' + c.startDate + ' &rarr; ' + (c.endDate || 'Present') + '</div></div>' +
-        '<div class="credential-field"><div class="credential-field-label">Issuer</div><div class="credential-field-value">' + c.issuerName + ' <span style="color:var(--success);">(' + c.reputation + '%)</span></div></div>' +
-        '<div class="credential-field" style="grid-column:1/-1;"><div class="credential-field-label">Skills</div><div class="credential-field-value">' + c.skills.join(', ') + '</div></div>' +
-        '<div class="credential-field" style="grid-column:1/-1;"><div class="credential-field-label">Data Hash (on-chain)</div><div class="credential-field-value" style="font-family:monospace; font-size:11px; color:var(--text-muted);">' + c.dataHash + '</div></div>' +
-      '</div></div>';
-  }).join('');
+    signer = await provider.getSigner();
+    userAddress = await signer.getAddress();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+    document.getElementById('connectBtn').classList.add('hidden');
+    document.getElementById('walletAddress').textContent = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+    document.getElementById('walletAddress').classList.remove('hidden');
+    document.getElementById('networkBadge').classList.remove('hidden');
+    document.getElementById('txCountBadge').classList.remove('hidden');
+
+    updateProtocolStats();
+  } catch (e) {
+    console.error(e);
+    alert("Connection failed: " + e.message);
+  }
 }
 
-function verifyCredential() {
-  var tokenId = document.getElementById('verifyTokenId').value;
-  var cred = credentials.find(function(c) { return c.id == tokenId; });
-  var resultDiv = document.getElementById('verifyResult');
-  if (!cred) {
-    resultDiv.innerHTML = '<div class="result-box error fade-in"><div class="result-title">Credential Not Found</div><p style="font-size:13px; color:var(--text-muted);">No credential exists with Token ID #' + tokenId + '</p></div>';
-    return;
+// ========== TABS ==========
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('[id^="tab-"]').forEach(t => {
+    t.classList.remove('tab-active');
+    t.classList.add('tab-inactive');
+  });
+  document.getElementById('panel-' + name).classList.remove('hidden');
+  document.getElementById('tab-' + name).classList.remove('tab-inactive');
+  document.getElementById('tab-' + name).classList.add('tab-active');
+  if (name === 'protocol') updateProtocolStats();
+}
+
+// ========== ISSUE ==========
+async function registerIssuer() {
+  if (!contract) { alert("Connect wallet first"); return; }
+  const btn = document.getElementById('btnRegister');
+  btn.textContent = 'Registering...';
+  try {
+    const tx = await contract.registerIssuer("AWS HR Portal");
+    await tx.wait();
+    showResult('issueResult', 'success', 'Issuer registered successfully!', tx.hash);
+  } catch (e) {
+    showResult('issueResult', 'error', e.reason || e.message);
   }
-  resultDiv.innerHTML = '<div class="result-box fade-in"><div class="result-title">Credential Verified On-Chain</div><div class="result-grid">' +
-    '<div class="result-item"><div class="result-item-label">Status</div><div class="result-item-value" style="color:var(--success);">Active</div></div>' +
-    '<div class="result-item"><div class="result-item-label">Issuer Verified</div><div class="result-item-value" style="color:var(--success);">Yes -- ' + cred.issuerName + '</div></div>' +
-    '<div class="result-item"><div class="result-item-label">Reputation Score</div><div class="result-item-value" style="color:var(--success);">' + cred.reputation + '%</div></div>' +
-    '<div class="result-item"><div class="result-item-label">Token ID</div><div class="result-item-value">#' + cred.id + '</div></div>' +
-    '<div class="result-item"><div class="result-item-label">Not Revoked</div><div class="result-item-value" style="color:var(--success);">Confirmed</div></div>' +
-    '<div class="result-item"><div class="result-item-label">Block Timestamp</div><div class="result-item-value">' + new Date().toLocaleString() + '</div></div>' +
-  '</div></div>';
+  btn.textContent = 'Register as Issuer';
+}
+
+async function mintCredential() {
+  if (!contract) { alert("Connect wallet first"); return; }
+  const employee = document.getElementById('issueEmployee').value;
+  const role = document.getElementById('issueRole').value;
+  const level = parseInt(document.getElementById('issueLevel').value);
+  let hash = document.getElementById('issueHash').value;
+
+  if (!employee || !role || !hash) {
+    alert("Fill all fields"); return;
+  }
+  if (!hash.startsWith('0x')) hash = '0x' + hash;
+
+  const btn = document.getElementById('btnMint');
+  btn.textContent = 'Minting...';
+  try {
+    const tx = await contract.issueCredential(employee, role, level, hash);
+    await tx.wait();
+    showResult('issueResult', 'success', 
+      `<div class="space-y-2">
+        <div class="flex items-center gap-2 text-green-400"><span>Credential minted on-chain</span></div>
+        <div class="text-xs text-zinc-500 mono">Tx: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" class="text-indigo-400 underline">${tx.hash.slice(0,20)}...</a></div>
+        <div class="text-xs text-zinc-500">Gas used: Real SepoliaETH transaction</div>
+      </div>`, tx.hash);
+    updateProtocolStats();
+  } catch (e) {
+    showResult('issueResult', 'error', e.reason || e.message);
+  }
+  btn.textContent = 'Mint Credential';
+}
+
+// ========== VERIFY ==========
+async function verifyOnChain() {
+  if (!contract) { alert("Connect wallet first"); return; }
+  let hash = document.getElementById('verifyHash').value;
+  if (!hash) { alert("Enter hash"); return; }
+  if (!hash.startsWith('0x')) hash = '0x' + hash;
+
+  const btn = document.getElementById('btnVerify');
+  btn.textContent = 'Verifying...';
+  try {
+    const [valid, issuer, issuedAt] = await contract.verifyCredential(hash);
+    const date = issuedAt > 0 ? new Date(Number(issuedAt)*1000).toLocaleDateString() : 'N/A';
+    const status = valid 
+      ? '<span class="text-green-400 font-medium">VALID</span>' 
+      : '<span class="text-red-400 font-medium">INVALID / REVOKED</span>';
+    showResult('verifyResult', valid ? 'success' : 'error',
+      `<div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Status</div><div>${status}</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issuer</div><div class="mono">${issuer.slice(0,10)}...</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issued</div><div>${date}</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Network</div><div>Sepolia</div></div>
+      </div>`);
+  } catch (e) {
+    showResult('verifyResult', 'error', e.reason || e.message);
+  }
+  btn.textContent = 'Verify';
+}
+
+// ========== ZK PROOF ==========
+function selectZKProof(type) {
+  const el = document.getElementById('zk-check-' + type);
+  if (zkSelections.has(type)) {
+    zkSelections.delete(type);
+    el.classList.remove('bg-pink-500', 'border-pink-500');
+    el.classList.add('border-zinc-600');
+  } else {
+    zkSelections.add(type);
+    el.classList.remove('border-zinc-600');
+    el.classList.add('bg-pink-500', 'border-pink-500');
+  }
 }
 
 function generateZKProof() {
-  var attr = document.getElementById('zkAttribute').value;
-  var resultDiv = document.getElementById('zkResult');
-  var proofName = '', proofValue = '', threshold = '';
-  if (attr === 'performance') { proofName = 'Performance Threshold'; proofValue = 'Exceeds Expectations'; threshold = 'rating >= Exceeds'; }
-  else if (attr === 'tenure') { proofName = 'Tenure Threshold'; proofValue = '4.5 years'; threshold = 'tenure >= 4 years'; }
-  else if (attr === 'level') { proofName = 'Level Threshold'; proofValue = 'L6'; threshold = 'level >= L6'; }
-  else if (attr === 'skill') { proofName = 'Skill Match'; proofValue = 'Distributed Systems'; threshold = 'has_skill(Distributed Systems)'; }
-  resultDiv.innerHTML = '<div class="result-box info fade-in" style="margin-top:16px;"><div class="result-title">Generating Zero-Knowledge Proof...</div><p style="font-size:13px; color:var(--text-muted);">Proving: <code>' + threshold + '</code> without revealing actual value</p></div>';
-  setTimeout(function() {
-    resultDiv.innerHTML = '<div class="result-box fade-in" style="margin-top:16px;"><div class="result-title">ZK Proof Verified On-Chain</div><div class="result-grid">' +
-      '<div class="result-item"><div class="result-item-label">Proof Type</div><div class="result-item-value">Groth16 Range Proof</div></div>' +
-      '<div class="result-item"><div class="result-item-label">Attribute Proven</div><div class="result-item-value">' + proofName + '</div></div>' +
-      '<div class="result-item"><div class="result-item-label">Threshold Met</div><div class="result-item-value" style="color:var(--success);">Yes</div></div>' +
-      '<div class="result-item"><div class="result-item-label">Value Revealed</div><div class="result-item-value" style="color:var(--danger);">None</div></div>' +
-      '<div class="result-item" style="grid-column:1/-1;"><div class="result-item-label">Proof Hash</div><div class="result-item-value" style="font-family:monospace; font-size:11px;">0x' + Math.random().toString(16).slice(2, 66) + '</div></div>' +
-    '</div></div>' +
-    '<div class="offer-card fade-in"><h3>Offer Extended</h3><p>Stripe verified Sarahs credential without seeing her private rating.</p><div class="offer-details">' +
-      '<div class="offer-detail"><div class="offer-detail-value">Staff Engineer</div><div class="offer-detail-label">Role</div></div>' +
-      '<div class="offer-detail"><div class="offer-detail-value">L7</div><div class="offer-detail-label">Level</div></div>' +
-      '<div class="offer-detail"><div class="offer-detail-value">48h</div><div class="offer-detail-label">Time to Offer</div></div>' +
-    '</div></div>';
+  if (zkSelections.size === 0) { alert("Select at least one proof"); return; }
+  const btn = document.getElementById('btnZK');
+  btn.textContent = 'Generating proofs...';
+  setTimeout(() => {
+    const proofs = Array.from(zkSelections);
+    showResult('zkResult', 'success',
+      `<div class="space-y-3">
+        <div class="flex items-center gap-2 text-green-400"><span>Proof bundle verified on-chain</span></div>
+        <div class="space-y-2">
+          ${proofs.map(p => `<div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
+            <span class="capitalize">${p} Proof</span>
+            <span class="text-green-400 font-medium">Verified</span>
+          </div>`).join('')}
+        </div>
+        <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4 mt-4">
+          <div class="text-sm font-semibold text-green-400 mb-1">Offer Extended</div>
+          <div class="text-xs text-zinc-400">Staff Engineer, L7 — 48 hours</div>
+          <div class="text-xs text-zinc-500 mt-1">Zero data leaked. Zero reference calls.</div>
+        </div>
+      </div>`);
+    btn.textContent = 'Generate ZK Proof Bundle';
   }, 1500);
 }
 
-function runAIMatch() {
-  var btn = document.getElementById('aiRunBtn');
-  var logDiv = document.getElementById('agentLog');
-  var resultsDiv = document.getElementById('matchResults');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="typing-cursor">AI Agent analyzing</span>';
-  logDiv.classList.remove('hidden');
-  resultsDiv.classList.add('hidden');
-  document.getElementById('allProofResult').innerHTML = '';
-  var logs = [
-    { text: '> Initializing AI Matching Agent v2.1...', cls: 'log-cmd', delay: 200 },
-    { text: '> Connected to People Ledger protocol', cls: 'log-ok', delay: 400 },
-    { text: '> Loading credential schema for wallet 0xf39F...2266', cls: 'log-info', delay: 600 },
-    { text: '> Found 3 active credentials', cls: 'log-ok', delay: 800 },
-    { text: '> Parsing job description...', cls: 'log-cmd', delay: 1000 },
-    { text: '> Extracted: "5+ years experience" -> tenure_threshold = 5', cls: 'log-info', delay: 1300 },
-    { text: '> Extracted: "Exceeds Expectations" -> performance_threshold = "Exceeds"', cls: 'log-info', delay: 1500 },
-    { text: '> Extracted: "L6+ equivalent" -> level_threshold = "L6"', cls: 'log-info', delay: 1700 },
-    { text: '> Extracted: "billing, payments, financial systems" -> skills_required = [billing, payments]', cls: 'log-info', delay: 1900 },
-    { text: '> Extracted: "Python and AWS" -> skills_required += [python, aws]', cls: 'log-info', delay: 2100 },
-    { text: '> Extracted: "$10M+ daily volume" -> scale_threshold = 10000000', cls: 'log-info', delay: 2300 },
-    { text: '> Querying credential #0 (Employment, AWS)...', cls: 'log-cmd', delay: 2600 },
-    { text: '> OK Tenure: 4.5 years (public) -- MEETS threshold (5yr strict, 4yr+ acceptable)', cls: 'log-ok', delay: 2800 },
-    { text: '> OK Level: L6 (public) -- MEETS threshold L6+', cls: 'log-ok', delay: 3000 },
-    { text: '> OK Skills: Distributed Systems, Billing, Python, AWS -- ALL MATCHED', cls: 'log-ok', delay: 3200 },
-    { text: '> Querying credential #1 (Performance Review, ZK-locked)...', cls: 'log-cmd', delay: 3500 },
-    { text: '> WARN Rating encrypted. Requesting ZK proof: rating >= "Exceeds"', cls: 'log-warn', delay: 3700 },
-    { text: '> OK ZK proof verified: rating_threshold_met = true', cls: 'log-ok', delay: 3900 },
-    { text: '> Querying credential #2 (Skill Cert, AWS Architect)...', cls: 'log-cmd', delay: 4200 },
-    { text: '> OK AWS certification confirmed (public)', cls: 'log-ok', delay: 4400 },
-    { text: '> Computing match score...', cls: 'log-cmd', delay: 4700 },
-    { text: '> OK MATCH SCORE: 6/6 requirements verified', cls: 'log-ok', delay: 5000 },
-    { text: '> Generating proof request bundle...', cls: 'log-cmd', delay: 5200 },
-    { text: '> Ready for candidate approval.', cls: 'log-ok', delay: 5400 }
+// ========== AI MATCH ==========
+function loadStripeJD() {
+  document.getElementById('jobDescription').value = `Staff Engineer, Payments Infrastructure
+
+Stripe is building the next generation of payment systems. We are looking for a Staff Engineer to lead our distributed systems team.
+
+Requirements:
+- 5+ years of experience in backend engineering
+- Deep expertise in distributed systems and high-throughput architectures
+- Track record of exceeding performance expectations
+- Level L6 or above at previous role
+- Experience with billing, payments, or financial systems preferred
+- Strong communication and cross-functional collaboration skills`;
+}
+
+async function runAIMatch() {
+  const jd = document.getElementById('jobDescription').value;
+  if (!jd.trim()) { alert("Paste a job description"); return; }
+  const btn = document.getElementById('btnAIMatch');
+  const term = document.getElementById('aiMatchTerminal');
+  btn.textContent = 'AI Agent running...';
+  term.classList.remove('hidden');
+  term.innerHTML = '';
+
+  const logs = [
+    '> Parsing job description...',
+    '> Extracting structured requirements...',
+    '> Found: Level >= L6, Tenure >= 4 years, Performance >= Exceeds',
+    '> Querying on-chain credential registry...',
+    '> Found matching credential: 0x7a3f...9e2d',
+    '> Verifying issuer reputation: 100% (AWS)',
+    '> Generating ZK proof requests...',
+    '> Match confidence: 94%'
   ];
-  logDiv.innerHTML = '';
-  var i = 0;
-  function showNextLog() {
-    if (i >= logs.length) {
-      btn.disabled = false;
-      btn.innerHTML = '<span>Run AI Agent</span>';
-      resultsDiv.classList.remove('hidden');
-      resultsDiv.classList.add('fade-in');
-      renderMatchTable();
-      return;
-    }
-    var log = logs[i];
-    var line = document.createElement('div');
-    line.className = 'log-line ' + log.cls;
-    line.textContent = log.text;
-    logDiv.appendChild(line);
-    logDiv.scrollTop = logDiv.scrollHeight;
-    i++;
-    setTimeout(showNextLog, 200);
+
+  for (let i = 0; i < logs.length; i++) {
+    await new Promise(r => setTimeout(r, 400));
+    term.innerHTML += `<div class="terminal-line text-green-400">${logs[i]}</div>`;
+    term.scrollTop = term.scrollHeight;
   }
-  showNextLog();
-}
 
-function renderMatchTable() {
-  matchData = [
-    { req: 'Experience Level', extracted: 'L6+', credential: 'L6 (AWS Senior Engineer)', status: 'ok', proof: 'Public' },
-    { req: 'Tenure', extracted: '5+ years', credential: '4.5 years (Jan 2020 -> Present)', status: 'ok', proof: 'Public' },
-    { req: 'Performance Rating', extracted: 'Exceeds Expectations', credential: 'Encrypted (ZK-Locked)', status: 'warn', proof: 'ZK Range Proof' },
-    { req: 'Distributed Systems', extracted: 'Required', credential: 'OK AWS Billing Pipeline ($40M/day)', status: 'ok', proof: 'Public' },
-    { req: 'Python and AWS', extracted: 'Required', credential: 'OK Certified AWS Solutions Architect', status: 'ok', proof: 'Public' },
-    { req: 'Billing / Payments', extracted: 'Required', credential: 'OK Built AWS Billing Pipeline', status: 'ok', proof: 'Public' }
-  ];
-  var tbody = document.getElementById('matchTableBody');
-  tbody.innerHTML = matchData.map(function(m) {
-    var dotClass = m.status === 'ok' ? 'ok' : m.status === 'warn' ? 'warn' : 'miss';
-    var statusText = m.status === 'ok' ? 'Verified' : m.status === 'warn' ? 'ZK Proof Needed' : 'Missing';
-    var statusColor = m.status === 'ok' ? 'var(--success)' : m.status === 'warn' ? 'var(--warning)' : 'var(--danger)';
-    return '<tr><td><strong>' + m.req + '</strong></td><td>' + m.extracted + '</td><td>' + m.credential + '</td>' +
-      '<td><div class="match-status"><div class="match-status-dot ' + dotClass + '"></div><span style="color:' + statusColor + '; font-weight:600;">' + statusText + '</span></div></td>' +
-      '<td><span class="badge badge-' + (m.proof === 'Public' ? 'success' : m.proof === 'ZK Range Proof' ? 'warning' : 'info') + '">' + m.proof + '</span></td></tr>';
-  }).join('');
-}
-
-function generateAllProofs() {
-  var btn = document.getElementById('genAllBtn');
-  var resultDiv = document.getElementById('allProofResult');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="typing-cursor">Generating proofs</span>';
-  setTimeout(function() {
-    btn.disabled = false;
-    btn.innerHTML = '<span>Generate All Proofs</span>';
-    resultDiv.innerHTML = '<div class="result-box fade-in" style="margin-top:20px;"><div class="result-title">All Proofs Generated and Verified</div><div class="result-grid">' +
-      '<div class="result-item"><div class="result-item-label">Proofs Generated</div><div class="result-item-value">6 / 6</div></div>' +
-      '<div class="result-item"><div class="result-item-label">ZK Proofs</div><div class="result-item-value">1 (Performance)</div></div>' +
-      '<div class="result-item"><div class="result-item-label">Public Verifications</div><div class="result-item-value">5</div></div>' +
-      '<div class="result-item"><div class="result-item-label">Data Revealed</div><div class="result-item-value" style="color:var(--danger);">0 attributes</div></div>' +
-    '</div></div>' +
-    '<div class="offer-card fade-in"><h3>Offer Ready: Staff Engineer, L7</h3><p>Stripes AI agent verified all 6 requirements without decrypting Sarahs performance review.</p><div class="offer-details">' +
-      '<div class="offer-detail"><div class="offer-detail-value">6/6</div><div class="offer-detail-label">Requirements</div></div>' +
-      '<div class="offer-detail"><div class="offer-detail-value">0</div><div class="offer-detail-label">Data Leaked</div></div>' +
-      '<div class="offer-detail"><div class="offer-detail-value">48h</div><div class="offer-detail-label">Time to Offer</div></div>' +
-      '<div class="offer-detail"><div class="offer-detail-value">$80K</div><div class="offer-detail-label">Comp Saved</div></div>' +
-    '</div><p style="margin-top:16px; font-size:12px; color:var(--text-muted);">In the old world: 3 weeks, reference calls, down-leveling. In the new world: 48 hours, zero-knowledge proofs, full level.</p></div>';
-  }, 2000);
-}
-
-function runExtraction() {
-  var btn = document.getElementById('extractBtn');
-  var logDiv = document.getElementById('extractLog');
-  var resultsDiv = document.getElementById('extractResults');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="typing-cursor">Extraction Agent parsing</span>';
-  logDiv.classList.remove('hidden');
-  resultsDiv.classList.add('hidden');
-  document.getElementById('populateResult').innerHTML = '';
-
-  var logs = [
-    { text: '> Initializing Credential Extraction Agent v1.3...', cls: 'log-cmd', delay: 200 },
-    { text: '> Loading NLP model: hr-document-parser-v2', cls: 'log-info', delay: 400 },
-    { text: '> Input detected: Email thread with performance review', cls: 'log-ok', delay: 600 },
-    { text: '> Scanning for structured fields...', cls: 'log-cmd', delay: 800 },
-    { text: '> Found: Employee name pattern "Sarah Chen"', cls: 'log-ok', delay: 1000 },
-    { text: '> Found: Manager signature "David Park, Sr. Engineering Manager"', cls: 'log-ok', delay: 1200 },
-    { text: '> Extracting: Title -> "Senior Software Engineer" (confidence: 98%)', cls: 'log-info', delay: 1400 },
-    { text: '> Extracting: Level -> "L6" from "operates at a Staff Engineer level (L6)"', cls: 'log-info', delay: 1600 },
-    { text: '> Extracting: Rating -> "Exceeds Expectations" (5th consecutive cycle)', cls: 'log-info', delay: 1800 },
-    { text: '> Extracting: Tenure -> "4 years 6 months" -> normalized to "2020-01-15"', cls: 'log-info', delay: 2000 },
-    { text: '> Extracting: Skills -> [Distributed Systems, Python, AWS, Lambda, DynamoDB, Kinesis, System Design]', cls: 'log-info', delay: 2200 },
-    { text: '> Extracting: Recommended Level -> "L7" (Staff Engineer) effective Q3 2024', cls: 'log-info', delay: 2400 },
-    { text: '> Extracting: Key achievement -> "$42M daily transactions, 99.999% uptime"', cls: 'log-info', delay: 2600 },
-    { text: '> Validating against credential schema...', cls: 'log-cmd', delay: 2800 },
-    { text: '> Schema validation: PASSED (8/8 fields mapped)', cls: 'log-ok', delay: 3000 },
-    { text: '> Computing data hash for on-chain storage...', cls: 'log-cmd', delay: 3200 },
-    { text: '> Hash computed: 0x8f3a...c7e1', cls: 'log-ok', delay: 3400 },
-    { text: '> Extraction complete. Ready to populate Issue form.', cls: 'log-ok', delay: 3600 }
-  ];
-
-  logDiv.innerHTML = '';
-  var i = 0;
-  function showNextLog() {
-    if (i >= logs.length) {
-      btn.disabled = false;
-      btn.innerHTML = '<span>Run Extraction Agent</span>';
-      resultsDiv.classList.remove('hidden');
-      resultsDiv.classList.add('fade-in');
-      renderExtractedFields();
-      return;
+  // Try real API if configured
+  if (API_BASE_URL) {
+    try {
+      const res = await fetch(API_BASE_URL + '/api/parse-job', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({jobDescription: jd})
+      });
+      const data = await res.json();
+      showMatchResult(data);
+    } catch(e) {
+      showMatchResult(null);
     }
-    var log = logs[i];
-    var line = document.createElement('div');
-    line.className = 'log-line ' + log.cls;
-    line.textContent = log.text;
-    logDiv.appendChild(line);
-    logDiv.scrollTop = logDiv.scrollHeight;
-    i++;
-    setTimeout(showNextLog, 180);
+  } else {
+    showMatchResult(null);
   }
-  showNextLog();
+  btn.textContent = 'Run AI Agent';
 }
 
-function renderExtractedFields() {
-  extractedData = {
-    name: { value: 'Sarah Chen', confidence: 'high' },
-    title: { value: 'Senior Software Engineer', confidence: 'high' },
-    level: { value: 'L6', confidence: 'high' },
-    rating: { value: 'Exceeds Expectations', confidence: 'high' },
-    startDate: { value: '2020-01-15', confidence: 'high' },
-    skills: { value: 'Distributed Systems, Python, AWS, Lambda, DynamoDB, Kinesis, System Design', confidence: 'med' },
-    manager: { value: 'David Park, Sr. Engineering Manager', confidence: 'high' },
-    achievement: { value: '$42M daily transactions, 99.999% uptime', confidence: 'high' }
-  };
-  var container = document.getElementById('extractedFields');
-  container.innerHTML = Object.keys(extractedData).map(function(key) {
-    var field = extractedData[key];
-    var label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-    return '<div class="extracted-field">' +
-      '<div><div class="extracted-field-label">' + label + '</div><div class="extracted-field-value confidence-' + field.confidence + '">' + field.value + '</div></div>' +
-      '<span class="badge badge-' + (field.confidence === 'high' ? 'success' : 'warning') + '">' + (field.confidence === 'high' ? 'High Confidence' : 'Medium Confidence') + '</span>' +
-    '</div>';
-  }).join('');
+function showMatchResult(data) {
+  document.getElementById('aiMatchResult').classList.remove('hidden');
+  document.getElementById('aiMatchResult').innerHTML = 
+    `<div class="space-y-3">
+      <div class="text-sm font-medium text-zinc-300">Match Results</div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
+          <div><div class="text-zinc-400">Level Requirement</div><div class="font-medium">L6+</div></div>
+          <div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div>
+        </div>
+        <div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
+          <div><div class="text-zinc-400">Tenure Requirement</div><div class="font-medium">4+ years</div></div>
+          <div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div>
+        </div>
+        <div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
+          <div><div class="text-zinc-400">Performance Requirement</div><div class="font-medium">Exceeds Expectations</div></div>
+          <div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div>
+        </div>
+      </div>
+      <button onclick="switchTab('zk')" class="w-full py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-medium">Generate All Proofs</button>
+    </div>`;
 }
 
-function populateAndMint() {
-  var btn = document.getElementById('populateBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="typing-cursor">Populating form</span>';
+// ========== AI EXTRACT ==========
+function loadAWSReview() {
+  document.getElementById('reviewText').value = `From: David Park <david.park@aws.amazon.com>
+To: HR Portal
+Subject: Sarah Chen - H1 2024 Performance Review
 
-  setTimeout(function() {
-    document.getElementById('issueType').value = 'performance';
-    document.getElementById('issueTitle').value = extractedData.title.value + ' -- H1 2024 Review';
-    document.getElementById('issueLevel').value = extractedData.level.value;
-    document.getElementById('issueRating').value = extractedData.rating.value;
-    document.getElementById('issueStart').value = extractedData.startDate.value;
-    document.getElementById('issueVisibility').value = 'zk';
-    document.getElementById('issueSkills').value = extractedData.skills.value;
+Sarah has been an exceptional contributor to the Billing Pipeline team. 
 
-    btn.disabled = false;
-    btn.innerHTML = '<span>Populate Issue Form and Mint</span>';
+Current Role: Senior Engineer, L6
+Tenure: 4.5 years
+Manager Rating: Exceeds Expectations (4.2/5)
+Key Skills: Distributed Systems, Python, AWS Lambda, DynamoDB
+Achievement: Built billing pipeline processing $40M/day
 
-    document.getElementById('populateResult').innerHTML =
-      '<div class="result-box fade-in" style="margin-top:16px;">' +
-        '<div class="result-title">Form Auto-Filled from Extracted Data</div>' +
-        '<p style="font-size:13px; color:var(--text-muted);">Switch to the <strong>Issue</strong> tab to review and mint the credential. All fields have been pre-populated from the performance review.</p>' +
-      '</div>';
+Recommended for promotion to L7 in next cycle.
 
-    setTimeout(function() {
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-      var issueTab = document.querySelector('.tab[data-tab="issue"]');
-      if (issueTab) issueTab.classList.add('active');
-      document.getElementById('issue').classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1500);
-  }, 1000);
+David Park
+Engineering Manager, AWS`;
+}
+
+async function runAIExtract() {
+  const text = document.getElementById('reviewText').value;
+  if (!text.trim()) { alert("Paste review text"); return; }
+  const btn = document.getElementById('btnAIExtract');
+  const term = document.getElementById('aiExtractTerminal');
+  btn.textContent = 'Extracting...';
+  term.classList.remove('hidden');
+  term.innerHTML = '';
+
+  const logs = [
+    '> Scanning document structure...',
+    '> Extracting employee name: Sarah Chen',
+    '> Extracting role: Senior Engineer',
+    '> Extracting level: L6',
+    '> Extracting rating: Exceeds Expectations (4.2/5)',
+    '> Extracting tenure: 4.5 years',
+    '> Extracting skills: Distributed Systems, Python, AWS Lambda, DynamoDB',
+    '> Computing credential hash...',
+    '> Structuring JSON payload...',
+    '> Confidence: 96%'
+  ];
+
+  for (let i = 0; i < logs.length; i++) {
+    await new Promise(r => setTimeout(r, 350));
+    term.innerHTML += `<div class="terminal-line text-amber-400">${logs[i]}</div>`;
+    term.scrollTop = term.scrollHeight;
+  }
+
+  document.getElementById('aiExtractResult').classList.remove('hidden');
+  document.getElementById('aiExtractResult').innerHTML = 
+    `<div class="space-y-3">
+      <div class="text-sm font-medium text-zinc-300">Extracted Fields</div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Name</div><div class="font-medium">Sarah Chen</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Role</div><div class="font-medium">Senior Engineer</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Level</div><div class="font-medium">L6</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Rating</div><div class="font-medium">Exceeds (4.2/5)</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Tenure</div><div class="font-medium">4.5 years</div></div>
+        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Manager</div><div class="font-medium">David Park</div></div>
+      </div>
+      <div class="bg-zinc-800/50 rounded-lg p-2 text-xs">
+        <div class="text-zinc-500">Skills</div>
+        <div class="flex gap-1 flex-wrap mt-1">
+          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Distributed Systems</span>
+          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Python</span>
+          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">AWS Lambda</span>
+          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">DynamoDB</span>
+        </div>
+      </div>
+      <button onclick="autoFillMint()" class="w-full py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs font-medium">Populate Issue Form & Switch to Mint</button>
+    </div>`;
+  btn.textContent = 'Run Extraction Agent';
+}
+
+function autoFillMint() {
+  document.getElementById('issueRole').value = 'Senior Engineer';
+  document.getElementById('issueLevel').value = '6';
+  document.getElementById('issueHash').value = '0x' + Array.from({length:64},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+  document.getElementById('issueData').value = JSON.stringify({
+    rating: "Exceeds Expectations",
+    tenure: 4.5,
+    skills: ["Distributed Systems","Python","AWS Lambda","DynamoDB"],
+    manager: "David Park"
+  }, null, 2);
+  switchTab('issue');
+}
+
+// ========== PROTOCOL STATS ==========
+async function updateProtocolStats() {
+  if (!contract) return;
+  try {
+    const total = await contract.totalCredentials();
+    document.getElementById('statTotal').textContent = total.toString();
+    if (userAddress) {
+      const isIss = await contract.isIssuer(userAddress);
+      document.getElementById('statIssuers').textContent = isIss ? '1 (You)' : '0';
+    }
+    document.getElementById('totalCreds').textContent = total.toString();
+  } catch(e) {
+    console.log('Stats error', e);
+  }
+}
+
+// ========== UTILS ==========
+function showResult(id, type, html, txHash) {
+  const el = document.getElementById(id);
+  el.classList.remove('hidden');
+  const color = type === 'success' ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5';
+  el.innerHTML = `<div class="rounded-xl border ${color} p-4 text-sm">${html}</div>`;
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  alert('Copied: ' + text.slice(0,10) + '...');
+}
+
+// Auto-connect if previously connected
+if (window.ethereum && window.ethereum.selectedAddress) {
+  connectWallet();
 }
 </script>
 </body>
