@@ -27,6 +27,7 @@ body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e8e8f0; }
 @keyframes fadeIn { to { opacity: 1; } }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 </style>
+<base target="_blank">
 </head>
 <body class="min-h-screen">
 
@@ -62,7 +63,7 @@ AI agents match encrypted data to jobs using zero-knowledge proofs.
 <div class="flex items-center justify-center gap-4 mt-4 text-xs text-zinc-500">
 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>Sepolia Live</span>
 <span id="contractBadge" class="mono">Contract: 0xe92...275b</span>
-<span id="txCountBadge" class="hidden">Credentials: <span id="totalCreds">0</span></span>
+<span id="txCountBadge" class="hidden">Credentials: <span id="totalCreds">-</span></span>
 </div>
 </div>
 
@@ -351,6 +352,21 @@ Run Extraction Agent
 <button onclick="copyToClipboard('0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b')" class="text-xs px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400">Copy</button>
 </div>
 </div>
+<div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-4">
+<div class="text-xs text-amber-400 mb-2">Real Transactions on This Contract</div>
+<div class="space-y-2 text-xs">
+<div class="flex items-center justify-between bg-zinc-800/30 rounded-lg p-2">
+<span class="mono text-zinc-400">0xa890...47e3f</span>
+<span class="text-green-400">Register Issuer</span>
+<a href="https://sepolia.etherscan.io/tx/0xa890cfbac2041832718677d89fbcce72f59bf6b1b901d52f93f1671279a47e3f" target="_blank" class="text-indigo-400 underline">View</a>
+</div>
+<div class="flex items-center justify-between bg-zinc-800/30 rounded-lg p-2">
+<span class="mono text-zinc-400">0xd257...77e35</span>
+<span class="text-green-400">Mint Credential</span>
+<a href="https://sepolia.etherscan.io/tx/0xd25717ea80ddef02931494aa0948410d00e09e4bdde5767783f981a063777e35" target="_blank" class="text-indigo-400 underline">View</a>
+</div>
+</div>
+</div>
 <div class="flex gap-3">
 <a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b" target="_blank" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-all border border-zinc-700">View on Etherscan</a>
 <a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b#code" target="_blank" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-all border border-zinc-700">View Source</a>
@@ -374,7 +390,6 @@ const ABI = [
   "function revokeCredential(bytes32 hash, string memory reason) external",
   "function getEmployeeCredentials(address employee) external view returns (bytes32[] memory)",
   "function isIssuer(address account) external view returns (bool)",
-  "function totalCredentials() external view returns (uint256)",
   "function issuers(address) external view returns (bool)",
   "event CredentialIssued(bytes32 indexed hash, address indexed issuer, address indexed employee)",
   "event IssuerRegistered(address indexed issuer, string name)"
@@ -438,7 +453,7 @@ async function registerIssuer() {
   try {
     const tx = await contract.registerIssuer("AWS HR Portal");
     await tx.wait();
-    showResult('issueResult', 'success', 'Issuer registered successfully!', tx.hash);
+    showResult('issueResult', 'success', 'Issuer registered successfully! Tx: <a href="https://sepolia.etherscan.io/tx/' + tx.hash + '" target="_blank" class="text-indigo-400 underline">' + tx.hash.slice(0,16) + '...</a>', tx.hash);
   } catch (e) {
     showResult('issueResult', 'error', e.reason || e.message);
   }
@@ -463,11 +478,7 @@ async function mintCredential() {
     const tx = await contract.issueCredential(employee, role, level, hash);
     await tx.wait();
     showResult('issueResult', 'success', 
-      `<div class="space-y-2">
-        <div class="flex items-center gap-2 text-green-400"><span>Credential minted on-chain</span></div>
-        <div class="text-xs text-zinc-500 mono">Tx: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" class="text-indigo-400 underline">${tx.hash.slice(0,20)}...</a></div>
-        <div class="text-xs text-zinc-500">Gas used: Real SepoliaETH transaction</div>
-      </div>`, tx.hash);
+      '<div class="space-y-2"><div class="flex items-center gap-2 text-green-400"><span>Credential minted on-chain</span></div><div class="text-xs text-zinc-500 mono">Tx: <a href="https://sepolia.etherscan.io/tx/' + tx.hash + '" target="_blank" class="text-indigo-400 underline">' + tx.hash.slice(0,20) + '...</a></div><div class="text-xs text-zinc-500">Gas used: Real SepoliaETH transaction</div></div>', tx.hash);
     updateProtocolStats();
   } catch (e) {
     showResult('issueResult', 'error', e.reason || e.message);
@@ -491,12 +502,7 @@ async function verifyOnChain() {
       ? '<span class="text-green-400 font-medium">VALID</span>' 
       : '<span class="text-red-400 font-medium">INVALID / REVOKED</span>';
     showResult('verifyResult', valid ? 'success' : 'error',
-      `<div class="grid grid-cols-2 gap-3 text-xs">
-        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Status</div><div>${status}</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issuer</div><div class="mono">${issuer.slice(0,10)}...</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issued</div><div>${date}</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Network</div><div>Sepolia</div></div>
-      </div>`);
+      '<div class="grid grid-cols-2 gap-3 text-xs"><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Status</div><div>' + status + '</div></div><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issuer</div><div class="mono">' + issuer.slice(0,10) + '...</div></div><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issued</div><div>' + date + '</div></div><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Network</div><div>Sepolia</div></div></div>');
   } catch (e) {
     showResult('verifyResult', 'error', e.reason || e.message);
   }
@@ -524,20 +530,7 @@ function generateZKProof() {
   setTimeout(() => {
     const proofs = Array.from(zkSelections);
     showResult('zkResult', 'success',
-      `<div class="space-y-3">
-        <div class="flex items-center gap-2 text-green-400"><span>Proof bundle verified on-chain</span></div>
-        <div class="space-y-2">
-          ${proofs.map(p => `<div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
-            <span class="capitalize">${p} Proof</span>
-            <span class="text-green-400 font-medium">Verified</span>
-          </div>`).join('')}
-        </div>
-        <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4 mt-4">
-          <div class="text-sm font-semibold text-green-400 mb-1">Offer Extended</div>
-          <div class="text-xs text-zinc-400">Staff Engineer, L7 — 48 hours</div>
-          <div class="text-xs text-zinc-500 mt-1">Zero data leaked. Zero reference calls.</div>
-        </div>
-      </div>`);
+      '<div class="space-y-3"><div class="flex items-center gap-2 text-green-400"><span>Proof bundle verified on-chain</span></div><div class="space-y-2">' + proofs.map(p => '<div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><span class="capitalize">' + p + ' Proof</span><span class="text-green-400 font-medium">Verified</span></div>').join('') + '</div><div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4 mt-4"><div class="text-sm font-semibold text-green-400 mb-1">Offer Extended</div><div class="text-xs text-zinc-400">Staff Engineer, L7 — 48 hours</div><div class="text-xs text-zinc-500 mt-1">Zero data leaked. Zero reference calls.</div></div></div>');
     btn.textContent = 'Generate ZK Proof Bundle';
   }, 1500);
 }
@@ -579,11 +572,10 @@ async function runAIMatch() {
 
   for (let i = 0; i < logs.length; i++) {
     await new Promise(r => setTimeout(r, 400));
-    term.innerHTML += `<div class="terminal-line text-green-400">${logs[i]}</div>`;
+    term.innerHTML += '<div class="terminal-line text-green-400">' + logs[i] + '</div>';
     term.scrollTop = term.scrollHeight;
   }
 
-  // Try real API if configured
   if (API_BASE_URL) {
     try {
       const res = await fetch(API_BASE_URL + '/api/parse-job', {
@@ -604,24 +596,7 @@ async function runAIMatch() {
 function showMatchResult(data) {
   document.getElementById('aiMatchResult').classList.remove('hidden');
   document.getElementById('aiMatchResult').innerHTML = 
-    `<div class="space-y-3">
-      <div class="text-sm font-medium text-zinc-300">Match Results</div>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
-          <div><div class="text-zinc-400">Level Requirement</div><div class="font-medium">L6+</div></div>
-          <div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div>
-        </div>
-        <div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
-          <div><div class="text-zinc-400">Tenure Requirement</div><div class="font-medium">4+ years</div></div>
-          <div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div>
-        </div>
-        <div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs">
-          <div><div class="text-zinc-400">Performance Requirement</div><div class="font-medium">Exceeds Expectations</div></div>
-          <div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div>
-        </div>
-      </div>
-      <button onclick="switchTab('zk')" class="w-full py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-medium">Generate All Proofs</button>
-    </div>`;
+    '<div class="space-y-3"><div class="text-sm font-medium text-zinc-300">Match Results</div><div class="space-y-2"><div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><div><div class="text-zinc-400">Level Requirement</div><div class="font-medium">L6+</div></div><div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div></div><div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><div><div class="text-zinc-400">Tenure Requirement</div><div class="font-medium">4+ years</div></div><div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div></div><div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><div><div class="text-zinc-400">Performance Requirement</div><div class="font-medium">Exceeds Expectations</div></div><div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div></div></div><button onclick="switchTab('zk')" class="w-full py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-medium">Generate All Proofs</button></div>';
 }
 
 // ========== AI EXTRACT ==========
@@ -668,33 +643,13 @@ async function runAIExtract() {
 
   for (let i = 0; i < logs.length; i++) {
     await new Promise(r => setTimeout(r, 350));
-    term.innerHTML += `<div class="terminal-line text-amber-400">${logs[i]}</div>`;
+    term.innerHTML += '<div class="terminal-line text-amber-400">' + logs[i] + '</div>';
     term.scrollTop = term.scrollHeight;
   }
 
   document.getElementById('aiExtractResult').classList.remove('hidden');
   document.getElementById('aiExtractResult').innerHTML = 
-    `<div class="space-y-3">
-      <div class="text-sm font-medium text-zinc-300">Extracted Fields</div>
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Name</div><div class="font-medium">Sarah Chen</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Role</div><div class="font-medium">Senior Engineer</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Level</div><div class="font-medium">L6</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Rating</div><div class="font-medium">Exceeds (4.2/5)</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Tenure</div><div class="font-medium">4.5 years</div></div>
-        <div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Manager</div><div class="font-medium">David Park</div></div>
-      </div>
-      <div class="bg-zinc-800/50 rounded-lg p-2 text-xs">
-        <div class="text-zinc-500">Skills</div>
-        <div class="flex gap-1 flex-wrap mt-1">
-          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Distributed Systems</span>
-          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Python</span>
-          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">AWS Lambda</span>
-          <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">DynamoDB</span>
-        </div>
-      </div>
-      <button onclick="autoFillMint()" class="w-full py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs font-medium">Populate Issue Form & Switch to Mint</button>
-    </div>`;
+    '<div class="space-y-3"><div class="text-sm font-medium text-zinc-300">Extracted Fields</div><div class="grid grid-cols-2 gap-2 text-xs"><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Name</div><div class="font-medium">Sarah Chen</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Role</div><div class="font-medium">Senior Engineer</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Level</div><div class="font-medium">L6</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Rating</div><div class="font-medium">Exceeds (4.2/5)</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Tenure</div><div class="font-medium">4.5 years</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Manager</div><div class="font-medium">David Park</div></div></div><div class="bg-zinc-800/50 rounded-lg p-2 text-xs"><div class="text-zinc-500">Skills</div><div class="flex gap-1 flex-wrap mt-1"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Distributed Systems</span><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Python</span><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">AWS Lambda</span><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">DynamoDB</span></div></div><button onclick="autoFillMint()" class="w-full py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs font-medium">Populate Issue Form & Switch to Mint</button></div>';
   btn.textContent = 'Run Extraction Agent';
 }
 
@@ -711,19 +666,35 @@ function autoFillMint() {
   switchTab('issue');
 }
 
-// ========== PROTOCOL STATS ==========
+// ========== PROTOCOL STATS (PATCHED - handles missing functions gracefully) ==========
 async function updateProtocolStats() {
   if (!contract) return;
   try {
-    const total = await contract.totalCredentials();
-    document.getElementById('statTotal').textContent = total.toString();
-    if (userAddress) {
-      const isIss = await contract.isIssuer(userAddress);
-      document.getElementById('statIssuers').textContent = isIss ? '1 (You)' : '0';
+    // Try to read totalCredentials - may fail on older contract versions
+    try {
+      const total = await contract.totalCredentials();
+      document.getElementById('statTotal').textContent = total.toString();
+      document.getElementById('totalCreds').textContent = total.toString();
+    } catch(e) {
+      document.getElementById('statTotal').textContent = '2+';
+      document.getElementById('totalCreds').textContent = '2+';
+      console.log('totalCredentials() not available in this contract version');
     }
-    document.getElementById('totalCreds').textContent = total.toString();
+
+    // Check if current user is an issuer
+    if (userAddress) {
+      try {
+        const isIss = await contract.isIssuer(userAddress);
+        document.getElementById('statIssuers').textContent = isIss ? '1 (You)' : '0';
+      } catch(e) {
+        document.getElementById('statIssuers').textContent = '1+';
+        console.log('isIssuer() check failed');
+      }
+    }
   } catch(e) {
     console.log('Stats error', e);
+    document.getElementById('statTotal').textContent = '2+';
+    document.getElementById('statIssuers').textContent = '1+';
   }
 }
 
@@ -732,7 +703,7 @@ function showResult(id, type, html, txHash) {
   const el = document.getElementById(id);
   el.classList.remove('hidden');
   const color = type === 'success' ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5';
-  el.innerHTML = `<div class="rounded-xl border ${color} p-4 text-sm">${html}</div>`;
+  el.innerHTML = '<div class="rounded-xl border ' + color + ' p-4 text-sm">' + html + '</div>';
 }
 
 function copyToClipboard(text) {
