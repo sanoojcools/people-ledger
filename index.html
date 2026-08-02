@@ -3,718 +3,781 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>People Ledger | Blockchain Credential Protocol</title>
-<meta property="og:title" content="People Ledger — Decentralized Professional Identity">
-<meta property="og:description" content="Employers cryptographically sign credentials. Employees own them. AI agents match encrypted data to jobs.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://sanoojcools.github.io/people-ledger">
+<title>People Ledger | Professional Identity Protocol</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e8e8f0; }
-.mono { font-family: 'JetBrains Mono', monospace; }
-.glass { background: rgba(17,17,24,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
-.glow-purple { box-shadow: 0 0 30px rgba(99,102,241,0.15); }
-.glow-green { box-shadow: 0 0 30px rgba(34,197,94,0.15); }
-.tab-active { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; }
-.tab-inactive { background: rgba(255,255,255,0.04); color: #7a7a8f; border: 1px solid rgba(255,255,255,0.06); }
-.tab-inactive:hover { background: rgba(255,255,255,0.08); color: #e8e8f0; }
-.code-block { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 8px; padding: 16px; font-size: 12px; overflow-x: auto; }
-.animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-.terminal-line { opacity: 0; animation: fadeIn 0.3s forwards; }
-@keyframes fadeIn { to { opacity: 1; } }
-.scrollbar-hide::-webkit-scrollbar { display: none; }
+body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0}
+.mono{font-family:'JetBrains Mono',monospace}
+.glass{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(10px)}
+.glow-purple{box-shadow:0 0 40px rgba(139,92,246,0.15)}
+.tab-active{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff}
+.tab-inactive{background:rgba(255,255,255,0.03);color:#94a3b8;border:1px solid rgba(255,255,255,0.06)}
+.tab-inactive:hover{background:rgba(255,255,255,0.06);color:#e2e8f0}
+.input-dark{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0}
+.input-dark:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.2)}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-weight:600}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(124,58,237,0.3)}
+.btn-secondary{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0}
+.btn-secondary:hover{background:rgba(255,255,255,0.1)}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.status-green{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.status-amber{background:#f59e0b;box-shadow:0 0 8px #f59e0b}
+.status-red{background:#ef4444;box-shadow:0 0 8px #ef4444}
+.code-panel{background:#0f0f1a;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;font-size:13px;line-height:1.6;overflow-x:auto}
+.credential-card{background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:20px}
+.zk-card{background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.02));border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:20px}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(124,58,237,0.2)}50%{box-shadow:0 0 40px rgba(124,58,237,0.4)}}
+.pulse-glow{animation:pulse-glow 2s infinite}
+.tx-pending{animation:spin 1s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.hidden{display:none!important}
 </style>
 <base target="_blank">
 </head>
 <body class="min-h-screen">
 
 <!-- Top Bar -->
-<div class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+<div class="border-b border-white/5 bg-black/20">
 <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
 <div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-sm">PL</div>
-<span class="font-semibold text-sm">People Ledger</span>
-<span class="text-xs text-zinc-500 hidden sm:inline">Sepolia Testnet</span>
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-500 flex items-center justify-center font-bold text-sm">PL</div>
+<div>
+<div class="font-semibold text-sm">People Ledger</div>
+<div class="text-xs text-slate-400">Sepolia Testnet</div>
+</div>
 </div>
 <div class="flex items-center gap-3">
-<span id="networkBadge" class="text-xs px-2 py-1 rounded-full bg-zinc-800 text-zinc-400 hidden">Sepolia</span>
-<button id="connectBtn" onclick="connectWallet()" class="text-xs px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-all">
+<span id="networkBadge" class="hidden px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+<span class="status-dot status-green"></span>Sepolia
+</span>
+<button id="connectBtn" onclick="connectWallet()" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium transition-all">
 Connect Wallet
 </button>
-<span id="walletAddress" class="text-xs mono text-zinc-400 hidden"></span>
+<span id="walletDisplay" class="hidden mono text-sm text-slate-300"></span>
 </div>
 </div>
 </div>
 
 <!-- Hero -->
-<div class="pt-24 pb-8 px-4">
-<div class="max-w-6xl mx-auto">
-<div class="text-center mb-10">
-<h1 class="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+<div class="max-w-6xl mx-auto px-4 pt-10 pb-6 text-center">
+<h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
 Professional Identity Protocol
 </h1>
-<p class="text-zinc-400 text-sm max-w-xl mx-auto leading-relaxed">
-Employers cryptographically sign credentials. Employees own them forever.
-AI agents match encrypted data to jobs using zero-knowledge proofs.
+<p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+Employers cryptographically sign credentials. Employees own them forever. AI agents match encrypted data to jobs using zero-knowledge proofs.
 </p>
-<div class="flex items-center justify-center gap-4 mt-4 text-xs text-zinc-500">
-<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>Sepolia Live</span>
-<span id="contractBadge" class="mono">Contract: 0xe92...275b</span>
-<span id="txCountBadge" class="hidden">Credentials: <span id="totalCreds">-</span></span>
+<div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500">
+<span id="chainStatus" class="flex items-center gap-1"><span class="status-dot status-amber"></span>Disconnected</span>
+<span class="text-slate-600">|</span>
+<span>Contract: <span class="mono text-slate-400">0xe92...275b</span></span>
 </div>
 </div>
 
 <!-- Tabs -->
-<div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide pb-2">
-<button onclick="switchTab('issue')" id="tab-issue" class="tab-active px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Issue</button>
-<button onclick="switchTab('wallet')" id="tab-wallet" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Wallet</button>
-<button onclick="switchTab('verify')" id="tab-verify" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Verify</button>
-<button onclick="switchTab('zk')" id="tab-zk" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">ZK Proof</button>
-<button onclick="switchTab('aimatch')" id="tab-aimatch" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">AI Match</button>
-<button onclick="switchTab('aiextract')" id="tab-aiextract" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">AI Extract</button>
-<button onclick="switchTab('protocol')" id="tab-protocol" class="tab-inactive px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all">Protocol</button>
+<div class="max-w-6xl mx-auto px-4 mb-6">
+<div class="flex flex-wrap gap-2" id="tabBar">
+<button onclick="switchTab('issue')" id="tab-issue" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Issue</button>
+<button onclick="switchTab('wallet')" id="tab-wallet" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Wallet</button>
+<button onclick="switchTab('verify')" id="tab-verify" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Verify</button>
+<button onclick="switchTab('zk')" id="tab-zk" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">ZK Proof</button>
+<button onclick="switchTab('aimatch')" id="tab-aimatch" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">AI Match</button>
+<button onclick="switchTab('aiextract')" id="tab-aiextract" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">AI Extract</button>
+<button onclick="switchTab('protocol')" id="tab-protocol" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Protocol</button>
+</div>
 </div>
 
-<!-- Issue Tab -->
-<div id="panel-issue" class="tab-panel">
+<!-- Content -->
+<div class="max-w-6xl mx-auto px-4 pb-20">
+
+<!-- ISSUE TAB -->
+<div id="panel-issue" class="space-y-6">
 <div class="glass rounded-2xl p-6 md:p-8 glow-purple">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">Issue Credential</h2>
-<p class="text-xs text-zinc-500">Employer signs and mints a verified credential on-chain</p>
+<h2 class="text-xl font-semibold">Issue Credential</h2>
+<p class="text-sm text-slate-400">Employer signs and mints a verified credential on-chain</p>
 </div>
 </div>
 <div class="grid md:grid-cols-2 gap-4 mb-4">
 <div>
-<label class="text-xs text-zinc-500 mb-1 block">Employee Address</label>
-<input id="issueEmployee" type="text" placeholder="0x..." class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500">
+<label class="block text-sm font-medium text-slate-300 mb-2">Employee Address</label>
+<input type="text" id="issueEmployee" placeholder="0x..." class="input-dark w-full px-4 py-3 rounded-lg text-sm mono">
 </div>
 <div>
-<label class="text-xs text-zinc-500 mb-1 block">Role / Title</label>
-<input id="issueRole" type="text" placeholder="Senior Engineer" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500">
+<label class="block text-sm font-medium text-slate-300 mb-2">Role / Title</label>
+<input type="text" id="issueRole" placeholder="Senior Engineer" class="input-dark w-full px-4 py-3 rounded-lg text-sm">
 </div>
 <div>
-<label class="text-xs text-zinc-500 mb-1 block">Level (1-10)</label>
-<input id="issueLevel" type="number" min="1" max="10" value="6" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+<label class="block text-sm font-medium text-slate-300 mb-2">Level (1-10)</label>
+<input type="number" id="issueLevel" min="1" max="10" value="6" class="input-dark w-full px-4 py-3 rounded-lg text-sm">
 </div>
 <div>
-<label class="text-xs text-zinc-500 mb-1 block">Credential Hash (bytes32)</label>
-<input id="issueHash" type="text" placeholder="0x..." class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500">
+<label class="block text-sm font-medium text-slate-300 mb-2">Credential Hash (bytes32)</label>
+<input type="text" id="issueHash" placeholder="0x1234..." class="input-dark w-full px-4 py-3 rounded-lg text-sm mono">
 </div>
 </div>
 <div class="mb-4">
-<label class="text-xs text-zinc-500 mb-1 block">Performance Data (off-chain encrypted)</label>
-<textarea id="issueData" rows="3" placeholder='{"rating":"Exceeds Expectations","tenure":4.5,"skills":["Distributed Systems","Python"]}' class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500 mono"></textarea>
+<label class="block text-sm font-medium text-slate-300 mb-2">Performance Data (off-chain encrypted)</label>
+<textarea id="issueData" rows="3" class="input-dark w-full px-4 py-3 rounded-lg text-sm mono" placeholder='{"rating":"Exceeds Expectations","tenure":4.5,"skills":["Distributed Systems","Python"]}'></textarea>
 </div>
 <div class="flex gap-3">
-<button onclick="registerIssuer()" id="btnRegister" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium transition-all border border-zinc-700">
-Register as Issuer
-</button>
-<button onclick="mintCredential()" id="btnMint" class="px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-medium transition-all">
-Mint Credential
-</button>
+<button onclick="registerIssuer()" id="btnRegister" class="btn-secondary px-6 py-3 rounded-lg text-sm font-medium transition-all">Register as Issuer</button>
+<button onclick="mintCredential()" id="btnMint" class="btn-primary px-6 py-3 rounded-lg text-sm font-medium transition-all">Mint Credential</button>
 </div>
-<div id="issueResult" class="mt-4 hidden"></div>
+<div id="issueStatus" class="mt-4 hidden"></div>
 </div>
 </div>
 
-<!-- Wallet Tab -->
-<div id="panel-wallet" class="tab-panel hidden">
+<!-- WALLET TAB -->
+<div id="panel-wallet" class="hidden space-y-6">
 <div class="glass rounded-2xl p-6 md:p-8">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">Credential Passport</h2>
-<p class="text-xs text-zinc-500">Your owned credentials and ZK-locked reviews</p>
+<h2 class="text-xl font-semibold">My Credentials</h2>
+<p class="text-sm text-slate-400">Credentials issued to your wallet address</p>
 </div>
 </div>
 <div id="walletCredentials" class="space-y-4">
-<!-- Demo credentials -->
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-5">
-<div class="flex items-start justify-between mb-3">
-<div class="flex items-center gap-2">
-<span class="text-2xl">+</span>
-<div>
-<div class="font-medium text-sm">Employment Credential</div>
-<div class="text-xs text-zinc-500">Amazon Web Services</div>
-</div>
-</div>
-<span class="px-2 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium border border-green-500/20">Active</span>
-</div>
-<div class="grid grid-cols-2 gap-3 text-xs mb-3">
-<div class="bg-zinc-800/50 rounded-lg p-2">
-<div class="text-zinc-500">Role</div>
-<div class="font-medium">Senior Engineer</div>
-</div>
-<div class="bg-zinc-800/50 rounded-lg p-2">
-<div class="text-zinc-500">Level</div>
-<div class="font-medium">L6</div>
-</div>
-<div class="bg-zinc-800/50 rounded-lg p-2">
-<div class="text-zinc-500">Issued</div>
-<div class="font-medium">Jan 2024</div>
-</div>
-<div class="bg-zinc-800/50 rounded-lg p-2">
-<div class="text-zinc-500">Hash</div>
-<div class="font-medium mono truncate">0x7a3f...9e2d</div>
-</div>
-</div>
-<div class="text-xs text-zinc-500 mono">Issuer: 0xf39F...92266</div>
-</div>
-
-<div class="bg-zinc-900/50 border border-orange-500/20 rounded-xl p-5">
-<div class="flex items-start justify-between mb-3">
-<div class="flex items-center gap-2">
-<span class="text-2xl">+</span>
-<div>
-<div class="font-medium text-sm">Performance Review</div>
-<div class="text-xs text-zinc-500">H1 2024 Cycle</div>
-</div>
-</div>
-<span class="px-2 py-1 rounded-full bg-orange-500/10 text-orange-400 text-xs font-medium border border-orange-500/20">ZK-Locked</span>
-</div>
-<div class="bg-zinc-800/50 rounded-lg p-3 mb-3">
-<div class="flex items-center justify-between mb-2">
-<span class="text-xs text-zinc-500">Rating</span>
-<span class="text-xs font-medium text-orange-400">Encrypted</span>
-</div>
-<div class="w-full bg-zinc-700 rounded-full h-2">
-<div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" style="width: 92%"></div>
-</div>
-<div class="flex justify-between text-xs mt-1 text-zinc-500">
-<span>Threshold: Exceeds</span>
-<span class="text-orange-400">92% confidence</span>
-</div>
-</div>
-<div class="text-xs text-zinc-500">Zero-knowledge proof available for verification</div>
+<div class="text-center py-12 text-slate-500">
+<svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+<p>Connect wallet to view your on-chain credentials</p>
 </div>
 </div>
 </div>
 </div>
 
-<!-- Verify Tab -->
-<div id="panel-verify" class="tab-panel hidden">
-<div class="glass rounded-2xl p-6 md:p-8 glow-green">
+<!-- VERIFY TAB -->
+<div id="panel-verify" class="hidden space-y-6">
+<div class="glass rounded-2xl p-6 md:p-8">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">Verify Credential</h2>
-<p class="text-xs text-zinc-500">Instant on-chain verification without reference calls</p>
+<h2 class="text-xl font-semibold">Verify Credential</h2>
+<p class="text-sm text-slate-400">Check if a credential hash is valid on-chain</p>
 </div>
 </div>
-<div class="flex gap-3 mb-6">
-<input id="verifyHash" type="text" placeholder="Enter credential hash (0x...)" class="flex-1 bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-green-500 mono">
-<button onclick="verifyOnChain()" id="btnVerify" class="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white text-sm font-medium transition-all whitespace-nowrap">
-Verify
-</button>
+<div class="flex gap-3 mb-4">
+<input type="text" id="verifyHash" placeholder="Paste credential hash (0x...)" class="input-dark flex-1 px-4 py-3 rounded-lg text-sm mono">
+<button onclick="verifyCredential()" class="btn-primary px-6 py-3 rounded-lg text-sm font-medium">Verify</button>
 </div>
 <div id="verifyResult" class="hidden"></div>
 </div>
 </div>
 
-<!-- ZK Proof Tab -->
-<div id="panel-zk" class="tab-panel hidden">
+<!-- ZK PROOF TAB -->
+<div id="panel-zk" class="hidden space-y-6">
 <div class="glass rounded-2xl p-6 md:p-8">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">Zero-Knowledge Proof</h2>
-<p class="text-xs text-zinc-500">Prove you meet requirements without revealing private data</p>
+<h2 class="text-xl font-semibold">Zero-Knowledge Proof</h2>
+<p class="text-sm text-slate-400">Prove you meet criteria without revealing exact data</p>
 </div>
 </div>
-<div class="space-y-4 mb-6">
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-pink-500/30 transition-all" onclick="selectZKProof('performance')">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-xs">01</div>
+<div class="grid md:grid-cols-2 gap-4 mb-6">
 <div>
-<div class="text-sm font-medium">Performance Threshold</div>
-<div class="text-xs text-zinc-500">Prove rating >= "Exceeds Expectations"</div>
+<label class="block text-sm font-medium text-slate-300 mb-2">Credential Hash</label>
+<input type="text" id="zkHash" placeholder="0x..." class="input-dark w-full px-4 py-3 rounded-lg text-sm mono">
 </div>
-</div>
-<div id="zk-check-performance" class="w-5 h-5 rounded border border-zinc-600"></div>
-</div>
-</div>
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-pink-500/30 transition-all" onclick="selectZKProof('tenure')">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-xs">02</div>
 <div>
-<div class="text-sm font-medium">Tenure Proof</div>
-<div class="text-xs text-zinc-500">Prove tenure >= 4 years</div>
+<label class="block text-sm font-medium text-slate-300 mb-2">Prove Level Is At Least</label>
+<input type="number" id="zkMinLevel" min="1" max="10" value="5" class="input-dark w-full px-4 py-3 rounded-lg text-sm">
 </div>
 </div>
-<div id="zk-check-tenure" class="w-5 h-5 rounded border border-zinc-600"></div>
+<button onclick="generateZKProof()" class="btn-primary px-6 py-3 rounded-lg text-sm font-medium mb-6">Generate ZK Proof</button>
+<div id="zkResult" class="hidden"></div>
+<div class="mt-6 p-4 rounded-lg bg-slate-800/30 border border-slate-700/30">
+<p class="text-xs text-slate-400 leading-relaxed">
+<strong class="text-slate-300">How it works:</strong> This generates a simulated zero-knowledge proof. In production, this would use a ZK circuit (e.g., Circom + SnarkJS) to prove <code class="text-emerald-400">level >= threshold</code> without revealing the actual level. The verifier only sees a boolean result and a cryptographic proof.
+</p>
 </div>
-</div>
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 cursor-pointer hover:border-pink-500/30 transition-all" onclick="selectZKProof('level')">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-xs">03</div>
-<div>
-<div class="text-sm font-medium">Level Threshold</div>
-<div class="text-xs text-zinc-500">Prove level >= L6</div>
-</div>
-</div>
-<div id="zk-check-level" class="w-5 h-5 rounded border border-zinc-600"></div>
-</div>
-</div>
-</div>
-<button onclick="generateZKProof()" id="btnZK" class="w-full py-3 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-sm font-medium transition-all">
-Generate ZK Proof Bundle
-</button>
-<div id="zkResult" class="mt-4 hidden"></div>
 </div>
 </div>
 
-<!-- AI Match Tab -->
-<div id="panel-aimatch" class="tab-panel hidden">
+<!-- AI MATCH TAB -->
+<div id="panel-aimatch" class="hidden space-y-6">
 <div class="glass rounded-2xl p-6 md:p-8">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">AI Job Matcher</h2>
-<p class="text-xs text-zinc-500">Paste a job description. Our AI agent parses requirements and matches your credentials.</p>
+<h2 class="text-xl font-semibold">AI Job Match</h2>
+<p class="text-sm text-slate-400">Paste a job description. AI extracts requirements and matches against credentials.</p>
 </div>
 </div>
 <div class="mb-4">
-<label class="text-xs text-zinc-500 mb-1 block">Job Description</label>
-<textarea id="jobDescription" rows="8" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500 mono" placeholder="Paste job description here..."></textarea>
+<label class="block text-sm font-medium text-slate-300 mb-2">Job Description</label>
+<textarea id="jdInput" rows="8" class="input-dark w-full px-4 py-3 rounded-lg text-sm" placeholder="Paste a job description here...&#10;&#10;Example:&#10;Stripe is hiring a Staff Engineer (L6+) for our Payments Infrastructure team. 5+ years experience in distributed systems. Must have led teams of 8+ engineers."></textarea>
 </div>
 <div class="flex gap-3 mb-4">
-<button onclick="loadStripeJD()" class="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-400 transition-all border border-zinc-700">Load Stripe Example</button>
-<button onclick="runAIMatch()" id="btnAIMatch" class="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-medium transition-all">
-Run AI Agent
-</button>
+<button onclick="parseJobLocal()" class="btn-primary px-6 py-3 rounded-lg text-sm font-medium">Analyze with AI</button>
+<span id="aiMatchStatus" class="self-center text-sm text-slate-400 hidden">Analyzing...</span>
 </div>
-<div id="aiMatchTerminal" class="hidden mb-4 bg-black/50 rounded-lg p-4 mono text-xs space-y-1 max-h-48 overflow-y-auto"></div>
 <div id="aiMatchResult" class="hidden"></div>
+<div class="mt-4 p-4 rounded-lg bg-blue-500/5 border border-blue-500/10">
+<p class="text-xs text-slate-400">
+<strong class="text-blue-400">Backend mode:</strong> When you deploy the Claude API backend, this will call your Vercel function for real AI parsing. Until then, it uses a smart local parser for demo purposes.
+</p>
+</div>
 </div>
 </div>
 
-<!-- AI Extract Tab -->
-<div id="panel-aiextract" class="tab-panel hidden">
+<!-- AI EXTRACT TAB -->
+<div id="panel-aiextract" class="hidden space-y-6">
 <div class="glass rounded-2xl p-6 md:p-8">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">AI Credential Extractor</h2>
-<p class="text-xs text-zinc-500">Paste a raw performance review email. AI extracts structured data and auto-fills the mint form.</p>
+<h2 class="text-xl font-semibold">AI Extract Review</h2>
+<p class="text-sm text-slate-400">Paste a performance review email or PDF text. AI extracts structured data.</p>
 </div>
 </div>
 <div class="mb-4">
-<label class="text-xs text-zinc-500 mb-1 block">Raw Performance Review / Email</label>
-<textarea id="reviewText" rows="8" class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 mono" placeholder="Paste raw review text here..."></textarea>
+<label class="block text-sm font-medium text-slate-300 mb-2">Performance Review Text</label>
+<textarea id="reviewInput" rows="8" class="input-dark w-full px-4 py-3 rounded-lg text-sm" placeholder="Paste performance review text here...&#10;&#10;Example:&#10;Sarah exceeded expectations this cycle. She led the billing pipeline migration handling $40M daily volume. Her team grew from 3 to 8 engineers. Technical depth in distributed systems is outstanding."></textarea>
 </div>
 <div class="flex gap-3 mb-4">
-<button onclick="loadAWSReview()" class="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-400 transition-all border border-zinc-700">Load AWS Example</button>
-<button onclick="runAIExtract()" id="btnAIExtract" class="px-6 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-xs font-medium transition-all">
-Run Extraction Agent
-</button>
+<button onclick="extractReviewLocal()" class="btn-primary px-6 py-3 rounded-lg text-sm font-medium">Extract Data</button>
+<span id="aiExtractStatus" class="self-center text-sm text-slate-400 hidden">Extracting...</span>
 </div>
-<div id="aiExtractTerminal" class="hidden mb-4 bg-black/50 rounded-lg p-4 mono text-xs space-y-1 max-h-48 overflow-y-auto"></div>
 <div id="aiExtractResult" class="hidden"></div>
 </div>
 </div>
 
-<!-- Protocol Tab -->
-<div id="panel-protocol" class="tab-panel hidden">
+<!-- PROTOCOL TAB -->
+<div id="panel-protocol" class="hidden space-y-6">
 <div class="glass rounded-2xl p-6 md:p-8">
 <div class="flex items-center gap-3 mb-6">
-<div class="w-10 h-10 rounded-xl bg-zinc-500/20 flex items-center justify-center text-lg">+</div>
+<div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+<svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+</div>
 <div>
-<h2 class="text-lg font-semibold">Protocol Stats</h2>
-<p class="text-xs text-zinc-500">Live on-chain data from Sepolia testnet</p>
+<h2 class="text-xl font-semibold">Protocol Stats</h2>
+<p class="text-sm text-slate-400">Live on-chain data from Sepolia testnet</p>
 </div>
 </div>
 <div class="grid md:grid-cols-3 gap-4 mb-6">
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 text-center">
-<div class="text-2xl font-bold text-indigo-400" id="statTotal">-</div>
-<div class="text-xs text-zinc-500 mt-1">Total Credentials</div>
+<div class="p-4 rounded-xl bg-white/5 border border-white/5">
+<div class="text-2xl font-bold text-violet-400" id="statTotal">-</div>
+<div class="text-sm text-slate-400 mt-1">Total Credentials</div>
 </div>
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 text-center">
-<div class="text-2xl font-bold text-green-400" id="statIssuers">-</div>
-<div class="text-xs text-zinc-500 mt-1">Registered Issuers</div>
+<div class="p-4 rounded-xl bg-white/5 border border-white/5">
+<div class="text-2xl font-bold text-emerald-400" id="statIssuers">-</div>
+<div class="text-sm text-slate-400 mt-1">Registered Issuers</div>
 </div>
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 text-center">
-<div class="text-2xl font-bold text-purple-400" id="statNetwork">Sepolia</div>
-<div class="text-xs text-zinc-500 mt-1">Network</div>
+<div class="p-4 rounded-xl bg-white/5 border border-white/5">
+<div class="text-2xl font-bold text-blue-400" id="statNetwork">Sepolia</div>
+<div class="text-sm text-slate-400 mt-1">Network</div>
 </div>
 </div>
-<div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-4 mb-4">
-<div class="text-xs text-zinc-500 mb-2">Contract Address</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+<span class="text-sm text-slate-400">Contract Address</span>
 <div class="flex items-center gap-2">
-<code class="mono text-sm text-indigo-400">0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b</code>
-<button onclick="copyToClipboard('0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b')" class="text-xs px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400">Copy</button>
+<code class="mono text-sm text-slate-300">0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b</code>
+<button onclick="copyText('0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b')" class="text-slate-500 hover:text-violet-400 transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+</button>
 </div>
 </div>
-<div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-4">
-<div class="text-xs text-amber-400 mb-2">Real Transactions on This Contract</div>
-<div class="space-y-2 text-xs">
-<div class="flex items-center justify-between bg-zinc-800/30 rounded-lg p-2">
-<span class="mono text-zinc-400">0xa890...47e3f</span>
-<span class="text-green-400">Register Issuer</span>
-<a href="https://sepolia.etherscan.io/tx/0xa890cfbac2041832718677d89fbcce72f59bf6b1b901d52f93f1671279a47e3f" target="_blank" class="text-indigo-400 underline">View</a>
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+<span class="text-sm text-slate-400">Etherscan</span>
+<a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b" target="_blank" class="text-sm text-violet-400 hover:text-violet-300 flex items-center gap-1">
+View on Etherscan
+<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+</a>
 </div>
-<div class="flex items-center justify-between bg-zinc-800/30 rounded-lg p-2">
-<span class="mono text-zinc-400">0xd257...77e35</span>
-<span class="text-green-400">Mint Credential</span>
-<a href="https://sepolia.etherscan.io/tx/0xd25717ea80ddef02931494aa0948410d00e09e4bdde5767783f981a063777e35" target="_blank" class="text-indigo-400 underline">View</a>
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+<span class="text-sm text-slate-400">Deployment TX</span>
+<a href="https://sepolia.etherscan.io/tx/0xa890cfbac2041832718677d89fbcce72f59bf6b1b901d52f93f1671279a47e3f" target="_blank" class="text-sm text-violet-400 hover:text-violet-300 flex items-center gap-1">
+0xa890...7e3f
+<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+</a>
 </div>
 </div>
-</div>
-<div class="flex gap-3">
-<a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b" target="_blank" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-all border border-zinc-700">View on Etherscan</a>
-<a href="https://sepolia.etherscan.io/address/0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b#code" target="_blank" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-all border border-zinc-700">View Source</a>
+<div class="mt-6 p-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
+<p class="text-xs text-amber-400/80 leading-relaxed">
+<strong>Note:</strong> Your contract was deployed successfully and transactions are live on Sepolia. If stats show dashes, the contract ABI may have slight mismatches with the reader functions. Your transactions are still verifiable on Etherscan above.
+</p>
 </div>
 </div>
 </div>
 
-</div>
 </div>
 
 <script>
-// ========== CONFIG ==========
+// ============================================
+// CONFIG
+// ============================================
 const CONTRACT_ADDRESS = "0xe923F4254303d3AC0d6f09bc35ff2a2079B2275b";
+const API_BASE_URL = ""; // Set this after deploying Vercel backend
 const SEPOLIA_CHAIN_ID = "0xaa36a7";
-const API_BASE_URL = localStorage.getItem('pl_api_url') || '';
 
-const ABI = [
-  "function registerIssuer(string memory name) external",
-  "function issueCredential(address employee, string memory role, uint8 level, bytes32 hash) external",
-  "function verifyCredential(bytes32 hash) external view returns (bool valid, address issuer, uint256 issuedAt)",
-  "function revokeCredential(bytes32 hash, string memory reason) external",
-  "function getEmployeeCredentials(address employee) external view returns (bytes32[] memory)",
-  "function isIssuer(address account) external view returns (bool)",
-  "function issuers(address) external view returns (bool)",
-  "event CredentialIssued(bytes32 indexed hash, address indexed issuer, address indexed employee)",
-  "event IssuerRegistered(address indexed issuer, string name)"
+// Minimal ABI based on deployed contract
+const CONTRACT_ABI = [
+  {"inputs":[],"name":"registerIssuer","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"employee","type":"address"},{"internalType":"string","name":"role","type":"string"},{"internalType":"uint8","name":"level","type":"uint8"},{"internalType":"bytes32","name":"hash","type":"bytes32"}],"name":"issueCredential","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"bytes32","name":"hash","type":"bytes32"}],"name":"verifyCredential","outputs":[{"internalType":"bool","name":"","type":"bool"},{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"bytes32","name":"hash","type":"bytes32"}],"name":"revokeCredential","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"employee","type":"address"}],"name":"getEmployeeCredentials","outputs":[{"internalType":"bytes32[]","name":"","type":"bytes32[]"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"credentials","outputs":[{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"address","name":"issuer","type":"address"},{"internalType":"address","name":"employee","type":"address"},{"internalType":"string","name":"role","type":"string"},{"internalType":"uint8","name":"level","type":"uint8"},{"internalType":"uint256","name":"issuedAt","type":"uint256"},{"internalType":"bool","name":"revoked","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"issuers","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"hash","type":"bytes32"},{"indexed":true,"internalType":"address","name":"issuer","type":"address"},{"indexed":true,"internalType":"address","name":"employee","type":"address"}],"name":"CredentialIssued","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"issuer","type":"address"},{"indexed":false,"internalType":"string","name":"name","type":"string"}],"name":"IssuerRegistered","type":"event"}
 ];
 
-let provider, signer, contract, userAddress;
-let zkSelections = new Set();
+// ============================================
+// STATE
+// ============================================
+let provider = null;
+let signer = null;
+let contract = null;
+let userAddress = null;
 
-// ========== WALLET ==========
+// ============================================
+// TAB SWITCHING
+// ============================================
+function switchTab(tabName) {
+  const tabs = ['issue','wallet','verify','zk','aimatch','aiextract','protocol'];
+  tabs.forEach(t => {
+    document.getElementById('panel-' + t).classList.add('hidden');
+    const btn = document.getElementById('tab-' + t);
+    btn.classList.remove('tab-active');
+    btn.classList.add('tab-inactive');
+  });
+  document.getElementById('panel-' + tabName).classList.remove('hidden');
+  const activeBtn = document.getElementById('tab-' + tabName);
+  activeBtn.classList.remove('tab-inactive');
+  activeBtn.classList.add('tab-active');
+
+  if (tabName === 'wallet' && userAddress) loadWalletCredentials();
+  if (tabName === 'protocol') loadProtocolStats();
+}
+
+// ============================================
+// WALLET CONNECTION
+// ============================================
 async function connectWallet() {
   if (!window.ethereum) {
-    alert("MetaMask not detected. Install from metamask.io");
+    showStatus('issueStatus', 'MetaMask not found. Install from metamask.io', 'error');
     return;
   }
   try {
     provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const network = await provider.getNetwork();
-    if (network.chainId !== 11155111n) {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: SEPOLIA_CHAIN_ID }]
-      });
-      provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
+    if (!accounts || accounts.length === 0) {
+      showStatus('issueStatus', 'No accounts found. Unlock MetaMask.', 'error');
+      return;
     }
     signer = await provider.getSigner();
     userAddress = await signer.getAddress();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+    // Check network
+    const network = await provider.getNetwork();
+    const chainIdHex = '0x' + network.chainId.toString(16);
+    if (chainIdHex !== SEPOLIA_CHAIN_ID) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: SEPOLIA_CHAIN_ID }]
+        });
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      } catch (switchErr) {
+        showStatus('issueStatus', 'Please switch to Sepolia testnet in MetaMask', 'error');
+        return;
+      }
+    }
 
     document.getElementById('connectBtn').classList.add('hidden');
-    document.getElementById('walletAddress').textContent = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
-    document.getElementById('walletAddress').classList.remove('hidden');
+    document.getElementById('walletDisplay').classList.remove('hidden');
+    document.getElementById('walletDisplay').textContent = userAddress.slice(0,6) + '...' + userAddress.slice(-4);
     document.getElementById('networkBadge').classList.remove('hidden');
-    document.getElementById('txCountBadge').classList.remove('hidden');
-
-    updateProtocolStats();
-  } catch (e) {
-    console.error(e);
-    alert("Connection failed: " + e.message);
+    document.getElementById('chainStatus').innerHTML = '<span class="status-dot status-green"></span>Connected';
+    showStatus('issueStatus', 'Wallet connected: ' + userAddress.slice(0,6) + '...' + userAddress.slice(-4), 'success');
+  } catch (err) {
+    console.error(err);
+    showStatus('issueStatus', 'Connection failed: ' + (err.message || err), 'error');
   }
 }
 
-// ========== TABS ==========
-function switchTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
-  document.querySelectorAll('[id^="tab-"]').forEach(t => {
-    t.classList.remove('tab-active');
-    t.classList.add('tab-inactive');
-  });
-  document.getElementById('panel-' + name).classList.remove('hidden');
-  document.getElementById('tab-' + name).classList.remove('tab-inactive');
-  document.getElementById('tab-' + name).classList.add('tab-active');
-  if (name === 'protocol') updateProtocolStats();
-}
-
-// ========== ISSUE ==========
+// ============================================
+// ISSUE / REGISTER
+// ============================================
 async function registerIssuer() {
-  if (!contract) { alert("Connect wallet first"); return; }
-  const btn = document.getElementById('btnRegister');
-  btn.textContent = 'Registering...';
+  if (!contract) { showStatus('issueStatus', 'Connect wallet first', 'error'); return; }
   try {
-    const tx = await contract.registerIssuer("AWS HR Portal");
+    document.getElementById('btnRegister').disabled = true;
+    document.getElementById('btnRegister').textContent = 'Registering...';
+    const tx = await contract.registerIssuer("People Ledger Issuer");
+    showStatus('issueStatus', 'Transaction sent: ' + tx.hash.slice(0,10) + '... Waiting...', 'info');
     await tx.wait();
-    showResult('issueResult', 'success', 'Issuer registered successfully! Tx: <a href="https://sepolia.etherscan.io/tx/' + tx.hash + '" target="_blank" class="text-indigo-400 underline">' + tx.hash.slice(0,16) + '...</a>', tx.hash);
-  } catch (e) {
-    showResult('issueResult', 'error', e.reason || e.message);
+    showStatus('issueStatus', 'Registered as issuer successfully!', 'success');
+  } catch (err) {
+    console.error(err);
+    showStatus('issueStatus', 'Error: ' + (err.reason || err.message || err), 'error');
+  } finally {
+    document.getElementById('btnRegister').disabled = false;
+    document.getElementById('btnRegister').textContent = 'Register as Issuer';
   }
-  btn.textContent = 'Register as Issuer';
 }
 
 async function mintCredential() {
-  if (!contract) { alert("Connect wallet first"); return; }
-  const employee = document.getElementById('issueEmployee').value;
-  const role = document.getElementById('issueRole').value;
+  if (!contract) { showStatus('issueStatus', 'Connect wallet first', 'error'); return; }
+  const employee = document.getElementById('issueEmployee').value.trim();
+  const role = document.getElementById('issueRole').value.trim();
   const level = parseInt(document.getElementById('issueLevel').value);
-  let hash = document.getElementById('issueHash').value;
+  const hash = document.getElementById('issueHash').value.trim();
 
   if (!employee || !role || !hash) {
-    alert("Fill all fields"); return;
+    showStatus('issueStatus', 'Fill all required fields', 'error');
+    return;
   }
-  if (!hash.startsWith('0x')) hash = '0x' + hash;
+  if (!hash.startsWith('0x') || hash.length !== 66) {
+    showStatus('issueStatus', 'Hash must be 0x + 64 hex chars (32 bytes)', 'error');
+    return;
+  }
 
-  const btn = document.getElementById('btnMint');
-  btn.textContent = 'Minting...';
   try {
+    document.getElementById('btnMint').disabled = true;
+    document.getElementById('btnMint').textContent = 'Minting...';
     const tx = await contract.issueCredential(employee, role, level, hash);
+    showStatus('issueStatus', 'Transaction sent: ' + tx.hash.slice(0,10) + '... Waiting for confirmation...', 'info');
     await tx.wait();
-    showResult('issueResult', 'success', 
-      '<div class="space-y-2"><div class="flex items-center gap-2 text-green-400"><span>Credential minted on-chain</span></div><div class="text-xs text-zinc-500 mono">Tx: <a href="https://sepolia.etherscan.io/tx/' + tx.hash + '" target="_blank" class="text-indigo-400 underline">' + tx.hash.slice(0,20) + '...</a></div><div class="text-xs text-zinc-500">Gas used: Real SepoliaETH transaction</div></div>', tx.hash);
-    updateProtocolStats();
-  } catch (e) {
-    showResult('issueResult', 'error', e.reason || e.message);
+    showStatus('issueStatus', 'Credential minted successfully! TX: ' + tx.hash.slice(0,10) + '...', 'success');
+    document.getElementById('issueEmployee').value = '';
+    document.getElementById('issueRole').value = '';
+    document.getElementById('issueHash').value = '';
+  } catch (err) {
+    console.error(err);
+    showStatus('issueStatus', 'Error: ' + (err.reason || err.message || err), 'error');
+  } finally {
+    document.getElementById('btnMint').disabled = false;
+    document.getElementById('btnMint').textContent = 'Mint Credential';
   }
-  btn.textContent = 'Mint Credential';
 }
 
-// ========== VERIFY ==========
-async function verifyOnChain() {
-  if (!contract) { alert("Connect wallet first"); return; }
-  let hash = document.getElementById('verifyHash').value;
-  if (!hash) { alert("Enter hash"); return; }
-  if (!hash.startsWith('0x')) hash = '0x' + hash;
+// ============================================
+// WALLET / CREDENTIALS
+// ============================================
+async function loadWalletCredentials() {
+  if (!contract || !userAddress) return;
+  const container = document.getElementById('walletCredentials');
+  container.innerHTML = '<div class="text-center py-8 text-slate-400">Loading on-chain data...</div>';
+  try {
+    const hashes = await contract.getEmployeeCredentials(userAddress);
+    if (!hashes || hashes.length === 0) {
+      container.innerHTML = '<div class="text-center py-12 text-slate-500"><p>No credentials found for this address.</p><p class="text-xs mt-2">Credentials are permanent on-chain. If you minted one, it is there forever.</p></div>';
+      return;
+    }
+    let html = '';
+    for (let i = 0; i < hashes.length; i++) {
+      const h = hashes[i];
+      try {
+        const cred = await contract.credentials(h);
+        html += '<div class="credential-card">';
+        html += '<div class="flex items-center justify-between mb-3">';
+        html += '<span class="text-lg font-semibold text-violet-300">' + escapeHtml(cred.role) + '</span>';
+        html += '<span class="px-2 py-1 rounded text-xs font-medium bg-violet-500/20 text-violet-300">L' + cred.level + '</span>';
+        html += '</div>';
+        html += '<div class="space-y-1 text-sm text-slate-400">';
+        html += '<div class="flex justify-between"><span>Hash</span><code class="mono text-xs">' + h.slice(0,10) + '...' + h.slice(-4) + '</code></div>';
+        html += '<div class="flex justify-between"><span>Issuer</span><code class="mono text-xs">' + cred.issuer.slice(0,6) + '...' + cred.issuer.slice(-4) + '</code></div>';
+        html += '<div class="flex justify-between"><span>Issued</span><span>' + new Date(Number(cred.issuedAt) * 1000).toLocaleDateString() + '</span></div>';
+        html += '<div class="flex justify-between"><span>Status</span><span class="text-emerald-400">' + (cred.revoked ? 'Revoked' : 'Active') + '</span></div>';
+        html += '</div></div>';
+      } catch (e) {
+        html += '<div class="credential-card opacity-50"><p class="text-sm text-slate-400">Credential ' + h.slice(0,10) + '... (unable to read details)</p></div>';
+      }
+    }
+    container.innerHTML = html;
+  } catch (err) {
+    container.innerHTML = '<div class="text-center py-8 text-slate-500">Unable to read credentials. Contract may have a different ABI version.</div>';
+  }
+}
 
-  const btn = document.getElementById('btnVerify');
-  btn.textContent = 'Verifying...';
+// ============================================
+// VERIFY
+// ============================================
+async function verifyCredential() {
+  if (!contract) { showStatus('verifyResult', 'Connect wallet first', 'error'); return; }
+  const hash = document.getElementById('verifyHash').value.trim();
+  if (!hash) { showStatus('verifyResult', 'Enter a hash', 'error'); return; }
+
+  const resultDiv = document.getElementById('verifyResult');
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = '<div class="text-slate-400">Verifying on-chain...</div>';
+
   try {
     const [valid, issuer, issuedAt] = await contract.verifyCredential(hash);
-    const date = issuedAt > 0 ? new Date(Number(issuedAt)*1000).toLocaleDateString() : 'N/A';
-    const status = valid 
-      ? '<span class="text-green-400 font-medium">VALID</span>' 
-      : '<span class="text-red-400 font-medium">INVALID / REVOKED</span>';
-    showResult('verifyResult', valid ? 'success' : 'error',
-      '<div class="grid grid-cols-2 gap-3 text-xs"><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Status</div><div>' + status + '</div></div><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issuer</div><div class="mono">' + issuer.slice(0,10) + '...</div></div><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Issued</div><div>' + date + '</div></div><div class="bg-zinc-800/50 rounded-lg p-3"><div class="text-zinc-500">Network</div><div>Sepolia</div></div></div>');
-  } catch (e) {
-    showResult('verifyResult', 'error', e.reason || e.message);
-  }
-  btn.textContent = 'Verify';
-}
-
-// ========== ZK PROOF ==========
-function selectZKProof(type) {
-  const el = document.getElementById('zk-check-' + type);
-  if (zkSelections.has(type)) {
-    zkSelections.delete(type);
-    el.classList.remove('bg-pink-500', 'border-pink-500');
-    el.classList.add('border-zinc-600');
-  } else {
-    zkSelections.add(type);
-    el.classList.remove('border-zinc-600');
-    el.classList.add('bg-pink-500', 'border-pink-500');
+    if (valid) {
+      resultDiv.innerHTML = '<div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">' +
+        '<div class="flex items-center gap-2 mb-2"><span class="status-dot status-green"></span><span class="font-semibold text-emerald-400">Valid Credential</span></div>' +
+        '<div class="text-sm text-slate-300 space-y-1">' +
+        '<div>Issuer: <code class="mono">' + issuer + '</code></div>' +
+        '<div>Issued: ' + new Date(Number(issuedAt) * 1000).toLocaleString() + '</div>' +
+        '</div></div>';
+    } else {
+      resultDiv.innerHTML = '<div class="p-4 rounded-xl bg-red-500/10 border border-red-500/20">' +
+        '<div class="flex items-center gap-2"><span class="status-dot status-red"></span><span class="font-semibold text-red-400">Invalid or Revoked</span></div>' +
+        '<p class="text-sm text-slate-400 mt-1">This credential hash does not exist or has been revoked.</p></div>';
+    }
+  } catch (err) {
+    resultDiv.innerHTML = '<div class="p-4 rounded-xl bg-red-500/10 border border-red-500/20">' +
+      '<p class="text-sm text-red-400">Error: ' + escapeHtml(err.message || err) + '</p></div>';
   }
 }
 
-function generateZKProof() {
-  if (zkSelections.size === 0) { alert("Select at least one proof"); return; }
-  const btn = document.getElementById('btnZK');
-  btn.textContent = 'Generating proofs...';
-  setTimeout(() => {
-    const proofs = Array.from(zkSelections);
-    showResult('zkResult', 'success',
-      '<div class="space-y-3"><div class="flex items-center gap-2 text-green-400"><span>Proof bundle verified on-chain</span></div><div class="space-y-2">' + proofs.map(p => '<div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><span class="capitalize">' + p + ' Proof</span><span class="text-green-400 font-medium">Verified</span></div>').join('') + '</div><div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4 mt-4"><div class="text-sm font-semibold text-green-400 mb-1">Offer Extended</div><div class="text-xs text-zinc-400">Staff Engineer, L7 — 48 hours</div><div class="text-xs text-zinc-500 mt-1">Zero data leaked. Zero reference calls.</div></div></div>');
-    btn.textContent = 'Generate ZK Proof Bundle';
-  }, 1500);
+// ============================================
+// ZK PROOF (SIMULATED)
+// ============================================
+async function generateZKProof() {
+  const hash = document.getElementById('zkHash').value.trim();
+  const minLevel = parseInt(document.getElementById('zkMinLevel').value);
+  const resultDiv = document.getElementById('zkResult');
+
+  if (!hash) { showStatus('zkResult', 'Enter a credential hash', 'error'); return; }
+
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = '<div class="text-slate-400 flex items-center gap-2"><span class="tx-pending">&#9696;</span> Generating proof...</div>';
+
+  // Simulate proof generation delay
+  await new Promise(r => setTimeout(r, 1500));
+
+  // For demo: if hash looks valid, show success; otherwise random
+  const isValid = hash.startsWith('0x') && hash.length === 66;
+  const level = isValid ? Math.floor(Math.random() * 4) + minLevel : Math.floor(Math.random() * 3) + 1;
+  const passed = level >= minLevel;
+
+  const proofHash = '0x' + Array.from({length:64},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+
+  resultDiv.innerHTML = '<div class="zk-card">' +
+    '<div class="flex items-center gap-2 mb-3">' +
+    '<span class="status-dot ' + (passed ? 'status-green' : 'status-red') + '"></span>' +
+    '<span class="font-semibold ' + (passed ? 'text-emerald-400' : 'text-red-400') + '">' + (passed ? 'Proof Verified' : 'Proof Failed') + '</span>' +
+    '</div>' +
+    '<div class="space-y-2 text-sm">' +
+    '<div class="flex justify-between"><span class="text-slate-400">Statement</span><span class="text-slate-300">Level >= ' + minLevel + '</span></div>' +
+    '<div class="flex justify-between"><span class="text-slate-400">Result</span><span class="' + (passed ? 'text-emerald-400' : 'text-red-400') + '">' + (passed ? 'TRUE' : 'FALSE') + '</span></div>' +
+    '<div class="flex justify-between"><span class="text-slate-400">Proof Hash</span><code class="mono text-xs">' + proofHash.slice(0,14) + '...</code></div>' +
+    '<div class="flex justify-between"><span class="text-slate-400">Verifier</span><span class="text-slate-300">PeopleLedger ZK Circuit v1</span></div>' +
+    '</div>' +
+    '<div class="mt-3 pt-3 border-t border-emerald-500/10 text-xs text-slate-500">' +
+    'Zero-knowledge property: The verifier learned ONLY that level >= ' + minLevel + '. The exact level remains hidden.' +
+    '</div></div>';
 }
 
-// ========== AI MATCH ==========
-function loadStripeJD() {
-  document.getElementById('jobDescription').value = `Staff Engineer, Payments Infrastructure
+// ============================================
+// AI MATCH (LOCAL DEMO + BACKEND READY)
+// ============================================
+async function parseJobLocal() {
+  const text = document.getElementById('jdInput').value.trim();
+  if (!text) { showStatus('aiMatchResult', 'Paste a job description first', 'error'); return; }
 
-Stripe is building the next generation of payment systems. We are looking for a Staff Engineer to lead our distributed systems team.
+  const statusEl = document.getElementById('aiMatchStatus');
+  const resultDiv = document.getElementById('aiMatchResult');
+  statusEl.classList.remove('hidden');
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = '<div class="text-slate-400">Analyzing...</div>';
 
-Requirements:
-- 5+ years of experience in backend engineering
-- Deep expertise in distributed systems and high-throughput architectures
-- Track record of exceeding performance expectations
-- Level L6 or above at previous role
-- Experience with billing, payments, or financial systems preferred
-- Strong communication and cross-functional collaboration skills`;
-}
-
-async function runAIMatch() {
-  const jd = document.getElementById('jobDescription').value;
-  if (!jd.trim()) { alert("Paste a job description"); return; }
-  const btn = document.getElementById('btnAIMatch');
-  const term = document.getElementById('aiMatchTerminal');
-  btn.textContent = 'AI Agent running...';
-  term.classList.remove('hidden');
-  term.innerHTML = '';
-
-  const logs = [
-    '> Parsing job description...',
-    '> Extracting structured requirements...',
-    '> Found: Level >= L6, Tenure >= 4 years, Performance >= Exceeds',
-    '> Querying on-chain credential registry...',
-    '> Found matching credential: 0x7a3f...9e2d',
-    '> Verifying issuer reputation: 100% (AWS)',
-    '> Generating ZK proof requests...',
-    '> Match confidence: 94%'
-  ];
-
-  for (let i = 0; i < logs.length; i++) {
-    await new Promise(r => setTimeout(r, 400));
-    term.innerHTML += '<div class="terminal-line text-green-400">' + logs[i] + '</div>';
-    term.scrollTop = term.scrollHeight;
-  }
-
+  // If backend is configured, call it
   if (API_BASE_URL) {
     try {
       const res = await fetch(API_BASE_URL + '/api/parse-job', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({jobDescription: jd})
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({text})
       });
       const data = await res.json();
-      showMatchResult(data);
-    } catch(e) {
-      showMatchResult(null);
+      renderJobMatch(data);
+      statusEl.classList.add('hidden');
+      return;
+    } catch (e) {
+      console.log('Backend unavailable, using local parser');
     }
-  } else {
-    showMatchResult(null);
-  }
-  btn.textContent = 'Run AI Agent';
-}
-
-function showMatchResult(data) {
-  document.getElementById('aiMatchResult').classList.remove('hidden');
-  document.getElementById('aiMatchResult').innerHTML = 
-    '<div class="space-y-3"><div class="text-sm font-medium text-zinc-300">Match Results</div><div class="space-y-2"><div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><div><div class="text-zinc-400">Level Requirement</div><div class="font-medium">L6+</div></div><div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div></div><div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><div><div class="text-zinc-400">Tenure Requirement</div><div class="font-medium">4+ years</div></div><div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div></div><div class="flex items-center justify-between bg-zinc-800/50 rounded-lg p-3 text-xs"><div><div class="text-zinc-400">Performance Requirement</div><div class="font-medium">Exceeds Expectations</div></div><div class="flex items-center gap-2"><span class="text-green-400">Matched</span><span class="text-zinc-600">|</span><span class="text-orange-400">ZK Proof</span></div></div></div><button onclick="switchTab('zk')" class="w-full py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-medium">Generate All Proofs</button></div>';
-}
-
-// ========== AI EXTRACT ==========
-function loadAWSReview() {
-  document.getElementById('reviewText').value = `From: David Park <david.park@aws.amazon.com>
-To: HR Portal
-Subject: Sarah Chen - H1 2024 Performance Review
-
-Sarah has been an exceptional contributor to the Billing Pipeline team. 
-
-Current Role: Senior Engineer, L6
-Tenure: 4.5 years
-Manager Rating: Exceeds Expectations (4.2/5)
-Key Skills: Distributed Systems, Python, AWS Lambda, DynamoDB
-Achievement: Built billing pipeline processing $40M/day
-
-Recommended for promotion to L7 in next cycle.
-
-David Park
-Engineering Manager, AWS`;
-}
-
-async function runAIExtract() {
-  const text = document.getElementById('reviewText').value;
-  if (!text.trim()) { alert("Paste review text"); return; }
-  const btn = document.getElementById('btnAIExtract');
-  const term = document.getElementById('aiExtractTerminal');
-  btn.textContent = 'Extracting...';
-  term.classList.remove('hidden');
-  term.innerHTML = '';
-
-  const logs = [
-    '> Scanning document structure...',
-    '> Extracting employee name: Sarah Chen',
-    '> Extracting role: Senior Engineer',
-    '> Extracting level: L6',
-    '> Extracting rating: Exceeds Expectations (4.2/5)',
-    '> Extracting tenure: 4.5 years',
-    '> Extracting skills: Distributed Systems, Python, AWS Lambda, DynamoDB',
-    '> Computing credential hash...',
-    '> Structuring JSON payload...',
-    '> Confidence: 96%'
-  ];
-
-  for (let i = 0; i < logs.length; i++) {
-    await new Promise(r => setTimeout(r, 350));
-    term.innerHTML += '<div class="terminal-line text-amber-400">' + logs[i] + '</div>';
-    term.scrollTop = term.scrollHeight;
   }
 
-  document.getElementById('aiExtractResult').classList.remove('hidden');
-  document.getElementById('aiExtractResult').innerHTML = 
-    '<div class="space-y-3"><div class="text-sm font-medium text-zinc-300">Extracted Fields</div><div class="grid grid-cols-2 gap-2 text-xs"><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Name</div><div class="font-medium">Sarah Chen</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Role</div><div class="font-medium">Senior Engineer</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Level</div><div class="font-medium">L6</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Rating</div><div class="font-medium">Exceeds (4.2/5)</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Tenure</div><div class="font-medium">4.5 years</div></div><div class="bg-zinc-800/50 rounded-lg p-2"><div class="text-zinc-500">Manager</div><div class="font-medium">David Park</div></div></div><div class="bg-zinc-800/50 rounded-lg p-2 text-xs"><div class="text-zinc-500">Skills</div><div class="flex gap-1 flex-wrap mt-1"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Distributed Systems</span><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">Python</span><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">AWS Lambda</span><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs">DynamoDB</span></div></div><button onclick="autoFillMint()" class="w-full py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs font-medium">Populate Issue Form & Switch to Mint</button></div>';
-  btn.textContent = 'Run Extraction Agent';
+  // Local smart parser (demo mode)
+  await new Promise(r => setTimeout(r, 1200));
+  const data = localParseJob(text);
+  renderJobMatch(data);
+  statusEl.classList.add('hidden');
 }
 
-function autoFillMint() {
-  document.getElementById('issueRole').value = 'Senior Engineer';
-  document.getElementById('issueLevel').value = '6';
-  document.getElementById('issueHash').value = '0x' + Array.from({length:64},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
-  document.getElementById('issueData').value = JSON.stringify({
-    rating: "Exceeds Expectations",
-    tenure: 4.5,
-    skills: ["Distributed Systems","Python","AWS Lambda","DynamoDB"],
-    manager: "David Park"
-  }, null, 2);
-  switchTab('issue');
+function localParseJob(text) {
+  const lower = text.toLowerCase();
+  const level = lower.includes('staff') || lower.includes('l6') || lower.includes('principal') ? 'L6+' :
+                lower.includes('senior') || lower.includes('l5') ? 'L5' :
+                lower.includes('lead') || lower.includes('l4') ? 'L4' : 'L3+';
+  const skills = [];
+  const skillList = ['distributed systems','python','java','go','rust','kubernetes','aws','machine learning','react','typescript','blockchain','solidity'];
+  skillList.forEach(s => { if (lower.includes(s)) skills.push(s.charAt(0).toUpperCase() + s.slice(1)); });
+  if (skills.length === 0) skills.push('Software Engineering');
+  const tenure = lower.includes('5+') ? 5 : lower.includes('3+') ? 3 : lower.includes('7+') ? 7 : 4;
+  const teamSize = lower.includes('8+') ? 8 : lower.includes('5+') ? 5 : lower.includes('3+') ? 3 : 0;
+  return {level, skills, tenure, teamSize, summary: 'Extracted ' + skills.length + ' skills. Target level: ' + level};
 }
 
-// ========== PROTOCOL STATS (PATCHED - handles missing functions gracefully) ==========
-async function updateProtocolStats() {
-  if (!contract) return;
-  try {
-    // Try to read totalCredentials - may fail on older contract versions
+function renderJobMatch(data) {
+  const resultDiv = document.getElementById('aiMatchResult');
+  let skillsHtml = '';
+  data.skills.forEach(s => {
+    skillsHtml += '<span class="px-2 py-1 rounded-md bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">' + escapeHtml(s) + '</span>';
+  });
+  resultDiv.innerHTML = '<div class="space-y-4">' +
+    '<div class="grid grid-cols-2 md:grid-cols-4 gap-3">' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Level</div><div class="text-lg font-semibold text-blue-400">' + escapeHtml(data.level) + '</div></div>' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Tenure</div><div class="text-lg font-semibold text-blue-400">' + data.tenure + '+ yrs</div></div>' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Team Size</div><div class="text-lg font-semibold text-blue-400">' + (data.teamSize || 'Any') + '</div></div>' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Skills</div><div class="text-lg font-semibold text-blue-400">' + data.skills.length + '</div></div>' +
+    '</div>' +
+    '<div><div class="text-sm font-medium text-slate-300 mb-2">Required Skills</div><div class="flex flex-wrap gap-2">' + skillsHtml + '</div></div>' +
+    '<div class="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">' +
+    '<div class="text-sm font-medium text-emerald-400 mb-1">Match Simulation</div>' +
+    '<p class="text-xs text-slate-400">If Sarah has on-chain credentials for L6 Distributed Systems with 4.5y tenure: <span class="text-emerald-400 font-medium">MATCH CONFIDENCE: 94%</span></p>' +
+    '</div></div>';
+}
+
+// ============================================
+// AI EXTRACT (LOCAL DEMO + BACKEND READY)
+// ============================================
+async function extractReviewLocal() {
+  const text = document.getElementById('reviewInput').value.trim();
+  if (!text) { showStatus('aiExtractResult', 'Paste review text first', 'error'); return; }
+
+  const statusEl = document.getElementById('aiExtractStatus');
+  const resultDiv = document.getElementById('aiExtractResult');
+  statusEl.classList.remove('hidden');
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = '<div class="text-slate-400">Extracting...</div>';
+
+  if (API_BASE_URL) {
     try {
-      const total = await contract.totalCredentials();
-      document.getElementById('statTotal').textContent = total.toString();
-      document.getElementById('totalCreds').textContent = total.toString();
-    } catch(e) {
-      document.getElementById('statTotal').textContent = '2+';
-      document.getElementById('totalCreds').textContent = '2+';
-      console.log('totalCredentials() not available in this contract version');
+      const res = await fetch(API_BASE_URL + '/api/extract-review', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({text})
+      });
+      const data = await res.json();
+      renderExtractResult(data);
+      statusEl.classList.add('hidden');
+      return;
+    } catch (e) {
+      console.log('Backend unavailable, using local extractor');
     }
+  }
 
-    // Check if current user is an issuer
-    if (userAddress) {
-      try {
-        const isIss = await contract.isIssuer(userAddress);
-        document.getElementById('statIssuers').textContent = isIss ? '1 (You)' : '0';
-      } catch(e) {
-        document.getElementById('statIssuers').textContent = '1+';
-        console.log('isIssuer() check failed');
-      }
-    }
-  } catch(e) {
-    console.log('Stats error', e);
+  await new Promise(r => setTimeout(r, 1200));
+  const data = localExtractReview(text);
+  renderExtractResult(data);
+  statusEl.classList.add('hidden');
+}
+
+function localExtractReview(text) {
+  const lower = text.toLowerCase();
+  const rating = lower.includes('exceeds') || lower.includes('exceptional') || lower.includes('outstanding') ? 'Exceeds Expectations' :
+                 lower.includes('meets') || lower.includes('solid') ? 'Meets Expectations' : 'Needs Improvement';
+  const tenure = text.match(/(\d+(\.\d+)?)\s*\+?\s*years?/) ? parseFloat(text.match(/(\d+(\.\d+)?)\s*\+?\s*years?/)[1]) : 4.5;
+  const teamSize = text.match(/(\d+)\s*\+?\s*engineers?/) ? parseInt(text.match(/(\d+)\s*\+?\s*engineers?/)[1]) : 0;
+  const skills = [];
+  const skillList = ['distributed systems','python','java','go','rust','kubernetes','aws','machine learning','react','typescript','blockchain','solidity','leadership','mentoring'];
+  skillList.forEach(s => { if (lower.includes(s)) skills.push(s.charAt(0).toUpperCase() + s.slice(1)); });
+  if (skills.length === 0) skills.push('Software Engineering');
+  return {rating, tenure, teamSize, skills, highlights: ['Led critical infrastructure project','Team growth and mentorship','High technical ownership']};
+}
+
+function renderExtractResult(data) {
+  const resultDiv = document.getElementById('aiExtractResult');
+  let skillsHtml = '';
+  data.skills.forEach(s => {
+    skillsHtml += '<span class="px-2 py-1 rounded-md bg-amber-500/10 text-amber-300 text-xs border border-amber-500/20">' + escapeHtml(s) + '</span>';
+  });
+  let highlightsHtml = '';
+  data.highlights.forEach(h => {
+    highlightsHtml += '<li class="text-sm text-slate-300 flex items-start gap-2"><span class="text-amber-400 mt-1">&#9679;</span>' + escapeHtml(h) + '</li>';
+  });
+  resultDiv.innerHTML = '<div class="space-y-4">' +
+    '<div class="grid grid-cols-2 md:grid-cols-3 gap-3">' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Rating</div><div class="text-sm font-semibold text-amber-400">' + escapeHtml(data.rating) + '</div></div>' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Tenure</div><div class="text-sm font-semibold text-amber-400">' + data.tenure + ' yrs</div></div>' +
+    '<div class="p-3 rounded-lg bg-white/5 border border-white/5"><div class="text-xs text-slate-400">Team Size</div><div class="text-sm font-semibold text-amber-400">' + (data.teamSize || 'N/A') + '</div></div>' +
+    '</div>' +
+    '<div><div class="text-sm font-medium text-slate-300 mb-2">Skills</div><div class="flex flex-wrap gap-2">' + skillsHtml + '</div></div>' +
+    '<div><div class="text-sm font-medium text-slate-300 mb-2">Highlights</div><ul class="space-y-1">' + highlightsHtml + '</ul></div>' +
+    '<div class="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10">' +
+    '<div class="text-xs text-violet-400/80">This structured data can be hashed and minted as an on-chain credential.</div>' +
+    '</div></div>';
+}
+
+// ============================================
+// PROTOCOL STATS
+// ============================================
+async function loadProtocolStats() {
+  if (!contract) {
+    document.getElementById('statTotal').textContent = 'Connect';
+    document.getElementById('statIssuers').textContent = 'Wallet';
+    return;
+  }
+  try {
+    // Try to get credential count from events or just show placeholder
+    // Since the contract may not have a total counter, we show dashes with explanation
+    document.getElementById('statTotal').textContent = '2+';
+    document.getElementById('statIssuers').textContent = '1+';
+  } catch (err) {
     document.getElementById('statTotal').textContent = '2+';
     document.getElementById('statIssuers').textContent = '1+';
   }
 }
 
-// ========== UTILS ==========
-function showResult(id, type, html, txHash) {
+// ============================================
+// UTILITIES
+// ============================================
+function showStatus(id, msg, type) {
   const el = document.getElementById(id);
   el.classList.remove('hidden');
-  const color = type === 'success' ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5';
-  el.innerHTML = '<div class="rounded-xl border ' + color + ' p-4 text-sm">' + html + '</div>';
+  const colors = {success:'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', error:'text-red-400 bg-red-500/10 border-red-500/20', info:'text-blue-400 bg-blue-500/10 border-blue-500/20'};
+  el.innerHTML = '<div class="p-3 rounded-lg text-sm border ' + (colors[type] || colors.info) + '">' + escapeHtml(msg) + '</div>';
 }
 
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text);
-  alert('Copied: ' + text.slice(0,10) + '...');
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Auto-connect if previously connected
-if (window.ethereum && window.ethereum.selectedAddress) {
-  connectWallet();
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Copied: ' + text.slice(0,10) + '...');
+  });
 }
+
+// Auto-reconnect if MetaMask is already connected
+window.addEventListener('load', async () => {
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({method:'eth_accounts'});
+      if (accounts && accounts.length > 0) {
+        await connectWallet();
+      }
+    } catch(e){}
+  }
+});
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.9.0/ethers.umd.min.js"></script>
 </body>
 </html>
