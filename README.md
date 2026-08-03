@@ -2,7 +2,7 @@
 
 > A decentralized professional identity protocol where employers cryptographically attest to your work history, you own those attestations in your wallet, and an AI agent automatically generates privacy-preserving proofs that match you to jobs.
 
-**Live Demo:** [sanoojcools.github.io/people-ledger](https://sanoojcools.github.io/people-ledger)
+Live Demo: sanoojcools.github.io/people-ledger/app.html
 
 ---
 
